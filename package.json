@@ -1,0 +1,36 @@
+{
+  "name": "repeatApp",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "test": "jest"
+  },
+  "dependencies": {
+    "lottie-react-native": "^2.6.1",
+    "ramda": "^0.26.1",
+    "react": "16.6.3",
+    "react-native": "0.58.6",
+    "react-native-circular-progress": "^1.1.0",
+    "react-native-flash-message": "^0.1.11",
+    "react-native-material-dropdown": "^0.11.1",
+    "react-native-material-textfield": "^0.12.0",
+    "react-native-modal": "^9.0.0",
+    "react-native-navigation": "1",
+    "react-native-svg": "^9.4.0",
+    "react-native-vector-icons": "^6.4.2",
+    "react-redux": "^6.0.1",
+    "redux": "^4.0.1",
+    "render-if": "^0.1.1"
+  },
+  "devDependencies": {
+    "babel-core": "7.0.0-bridge.0",
+    "babel-jest": "24.1.0",
+    "jest": "24.1.0",
+    "metro-react-native-babel-preset": "0.53.0",
+    "react-test-renderer": "16.6.3"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
