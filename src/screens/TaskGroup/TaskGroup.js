@@ -23,7 +23,9 @@ class TaskGroup extends Component {
       taskName: "",
       repeatFrequency: 0,
       lagTime: null,
-      taskStarted: false
+      taskStarted: false,
+      taskCompletedCount: 0,
+      taskCompleted: false
     };
     this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
   }

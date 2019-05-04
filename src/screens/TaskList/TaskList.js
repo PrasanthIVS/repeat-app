@@ -23,11 +23,12 @@ class TaskList extends Component {
     this.startTimer(this.props.taskList[index])
   };
 
+  // should be milliseconds
   convertToSeconds = (lagTime) => +lagTime[0]*60*60 + +lagTime[1]*60
 
   startTimer = (currentSelectedItem) => {
     console.log(!currentSelectedItem.taskStarted)
-    console.log(this.convertToSeconds(currentSelectedItem.lagTime))
+    // console.log(this.convertToSeconds(currentSelectedItem.lagTime))
     // var myVar ;
     // if (taskStarted) {
     //   myVar = setInterval(() => console.log('repeat'), 1000))

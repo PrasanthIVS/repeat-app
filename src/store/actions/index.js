@@ -1,4 +1,5 @@
 export {
   saveTaskGroup,
-  updateTaskStatus
+  updateTaskStatus,
+  updateCompletedCount
 } from "./tasks";

@@ -21,7 +21,12 @@ Navigation.registerComponent(
   store,
   Provider
 );
-Navigation.registerComponent("repeatApp.DashboardScreen", () => DashboardScreen);
+Navigation.registerComponent(
+  "repeatApp.DashboardScreen",
+  () => DashboardScreen,
+  store,
+  Provider
+);
 
 Navigation.startSingleScreenApp({
   screen: {

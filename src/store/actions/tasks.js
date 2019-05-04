@@ -1,6 +1,8 @@
 import {
   TASK_ADDED,
-  TASK_STATUS_UPDATE
+  TASK_STATUS_UPDATE,
+  TASK_COUNT_UPDATE,
+  UPDATE_TASK_COMPLETE_STATUS
 } from "./actionTypes";
 
 export const saveTaskGroup = taskInfo => {
@@ -16,4 +18,15 @@ export const updateTaskStatus = index => {
     index: index
   }
 }
+
+export const updateCompletedCount = () => {
+  // console.log('hello')
+  return ({
+    type: TASK_COUNT_UPDATE
+  })
+}
+
+export const updateTaskCompletedStatus = () => ({
+  type: UPDATE_TASK_COMPLETE_STATUS
+})
  
