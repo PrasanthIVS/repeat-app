@@ -3,6 +3,7 @@ package com.repeatapp;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import org.devio.rn.splashscreen.SplashScreenReactPackage;
 import com.horcrux.svg.SvgPackage;
 import com.airbnb.android.react.lottie.LottiePackage;
 import com.facebook.react.ReactNativeHost;
@@ -28,7 +29,8 @@ public class MainApplication extends NavigationApplication {
 		return Arrays.<ReactPackage>asList(
 			new VectorIconsPackage(),
 			new SvgPackage(),
-			new LottiePackage()
+			new LottiePackage(),
+			new SplashScreenReactPackage()
 		);
 	}
 

@@ -10,14 +10,6 @@ import {
 } from "../../store/actions/tasks";
 
 class Dashboard extends Component {
-  state = {
-    fill: 0,
-    taskCompletedCountUpdated: 0,
-  };
-
-  componentDidMount() {
-    // this.circularProgress.animate(100, 30000);
-  }
 
   convertToMilliSeconds = lagTime =>
     +lagTime[0] * 3600000 + +lagTime[1] * 60000;
@@ -36,14 +28,6 @@ class Dashboard extends Component {
       this.circularProgress.animate(0, 1000);
     }
   }
-
-  // shouldComponentUpdate = nextProps => {
-  //   const { taskList } = this.props;
-  //   return isNil(taskList[0])
-  //     ? true
-  //     : taskList[0].taskCompletedCount !==
-  //         nextProps.taskList[0].taskCompletedCount;
-  // };
 
   showNameAndPercentage = (taskList, fill) => {
     const { repeatFrequency, taskCompletedCount, taskCompleted } = taskList[0];
@@ -70,7 +54,6 @@ class Dashboard extends Component {
     ) : (
       <View>
         <Text style={styles.points}>Task Finished!</Text>
-        {/* <Text style={styles.points}>{Math.round(fill)}%</Text> */}
         <Text style={styles.taskCount}>
           Task ran {taskCompletedCount + 1}{" "}
           {taskCompletedCount + 1 === 1 ? "time" : "times"}

@@ -1,8 +1,18 @@
 import React, { Component } from "react";
 import { View, Text, StyleSheet, Button, TouchableOpacity } from "react-native";
 import startMainTabs from "../MainTabs/startMainTabs";
+import SplashScreen from 'react-native-splash-screen'
 
 class Welcome extends Component {
+
+  componentDidMount() {
+    // TODO: uncomment to show splash screen
+    // SplashScreen.show()
+    // setTimeout(function() {
+    //   SplashScreen.hide()
+    // }, 2000)
+  }
+
   onButtonPress = () => {
     // this.props.navigator.push({
     //   screen: "repeatApp.TaskGroupScreen",
