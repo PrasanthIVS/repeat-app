@@ -38,10 +38,12 @@ class TaskList extends Component {
   }
 
   showTaskDetails = (show, listItem = {}) => {
-    const taskInfo = `Name:   ${listItem.taskName}
-Frequency:   ${listItem.repeatFrequency}
-Lag Time:   ${listItem.lagTime[0]} hr ${listItem.lagTime[1]} min
-Running:   ${listItem.taskStarted ? 'Yes' : 'No'}`
+    const { lagTime, taskName, repeatFrequency, taskStarted } = listItem
+    const { hours, minutes, seconds } = lagTime
+    const taskInfo = `Name:   ${taskName}
+Frequency:   ${repeatFrequency}
+Lag Time:   ${hours} hr ${minutes} min ${seconds} sec
+Running:   ${taskStarted ? 'Yes' : 'No'}`
     this.setState({ showTaskDetails: show });
     Alert.alert('Task Info', taskInfo)
   };

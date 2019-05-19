@@ -7,14 +7,15 @@ import {
   Button,
   Alert,
   TouchableOpacity,
-  Slider
+  Slider,
+  Picker
 } from "react-native";
 import { TextField } from "react-native-material-textfield";
 import { isEmpty, isNil } from "ramda";
 import { connect } from "react-redux";
 import { saveTaskGroup } from "../../store/actions/tasks";
 import FlashMessage, { showMessage } from "react-native-flash-message";
-import TimePicker from "./timePicker";
+import { range } from "ramda";
 
 class TaskGroup extends Component {
   constructor(props) {
@@ -22,7 +23,11 @@ class TaskGroup extends Component {
     this.state = {
       taskName: "",
       repeatFrequency: 0,
-      lagTime: null,
+      lagTime: {
+        hours: 0,
+        minutes: 0,
+        seconds: 0
+      },
       taskStarted: false,
       taskCompletedCount: 0,
       taskCompleted: false
@@ -35,38 +40,52 @@ class TaskGroup extends Component {
       this.setState({
         taskName: "",
         repeatFrequency: 0,
-        lagTime: null,
+        lagTime: {
+          hours: 0,
+          minutes: 0,
+          seconds: 0
+        },
         taskStarted: false
       });
     }
+  }
+
+  isLagTimeEmpty = () => {
+    const { lagTime: { hours, minutes, seconds } } = this.state
+    return hours === 0 && minutes === 0 && seconds === 0
   }
 
   createTaskGroup = () => {
     const { taskName, repeatFrequency, lagTime } = this.state;
     var errorMessage;
     if (isEmpty(taskName)) {
-      errorMessage = "Task name should not be empty"
-    } else if (repeatFrequency === 0){
-      errorMessage = "Task should set to repeat atleast once"
+      errorMessage = "Task name should not be empty";
+    } else if (repeatFrequency === 0) {
+      errorMessage = "Task should set to repeat atleast once";
     } else {
-      errorMessage = "Lag time should not be empty"
+      errorMessage = "Lag time should not be empty";
     }
 
-    if (isEmpty(taskName) || repeatFrequency === 0 || isNil(lagTime)) {
+    if (isEmpty(taskName) || repeatFrequency === 0 || this.isLagTimeEmpty()) {
       showMessage({
         message: errorMessage,
         type: "danger",
         icon: "auto"
       });
     } else {
+      const { hours, minutes, seconds } = lagTime
       this.setState({
         taskName: "",
         repeatFrequency: 0,
-        lagTime: null,
+        lagTime: {
+          hours: 0,
+          minutes: 0,
+          seconds: 0
+        },
         taskStarted: false
       });
       showMessage({
-        message: `Task Created for ${lagTime[0]} hr ${lagTime[1]} min!`,
+        message: `Task Created for ${hours} hr ${minutes} min ${seconds} sec!`,
         type: "success",
         icon: "auto"
       });
@@ -78,44 +97,101 @@ class TaskGroup extends Component {
     }
   };
 
-  setLagTime = selectedTime => {
-    this.setState({ lagTime: selectedTime.time.split(":") });
-  };
-
   onTaskNameChange = value => {
     this.setState({ taskName: value });
   };
 
   render() {
+    const { repeatFrequency, lagTime, taskName } = this.state
+    const { hours, minutes, seconds } = lagTime
     return (
       <View style={styles.container}>
         <TextInput
           placeholder="Task name"
           onChangeText={this.onTaskNameChange}
-          value={this.state.taskName}
+          value={taskName}
           style={styles.textInput}
           // autoFocus
           maxLength={30}
         />
         <Text style={{ color: "black", marginTop: 25 }}>
-          Task will repeat {this.state.repeatFrequency} {this.state.repeatFrequency === 1 ? 'time' : 'times'}
+          Task will repeat {repeatFrequency}{" "}
+          {repeatFrequency === 1 ? "time" : "times"}
         </Text>
         <Slider
           maximumValue={100}
           minimumValue={0}
           step={1}
-          value={this.state.repeatFrequency}
+          value={repeatFrequency}
           onValueChange={repeatFrequency => this.setState({ repeatFrequency })}
           style={styles.slider}
         />
-        <TouchableOpacity
-          style={styles.textInput}
-          onPress={() => TimePicker.timePicker(this.setLagTime)}
-        >
-          <Text style={styles.lagTimeText}>
-            {this.state.lagTime ? this.state.lagTime : "Lag Time"}
-          </Text>
-        </TouchableOpacity>
+        {/* selected value, picker options should be strings */}
+        <View style={styles.picker}>
+          <Picker
+            selectedValue={`${hours}`}
+            style={{ height: 50, width: 100 }}
+            onValueChange={itemValue =>
+              this.setState({
+                lagTime: {
+                  ...lagTime,
+                  hours: +itemValue
+                }
+              })
+            }
+            prompt="Select Hours"
+          >
+            {range(0, 24).map(hrValue => (
+              <Picker.Item
+                label={`${hrValue}`}
+                value={`${hrValue}`}
+                key={hrValue}
+              />
+            ))}
+          </Picker>
+          <Picker
+            selectedValue={`${minutes}`}
+            style={{ height: 50, width: 100 }}
+            onValueChange={itemValue =>
+              this.setState({
+                lagTime: {
+                  ...lagTime,
+                  minutes: +itemValue
+                }
+              })
+            }
+            prompt="Select Minutes"
+          >
+            {range(0, 60).map(minValue => (
+              <Picker.Item
+                label={`${minValue}`}
+                value={`${minValue}`}
+                key={minValue}
+              />
+            ))}
+          </Picker>
+          <Picker
+            selectedValue={`${seconds}`}
+            style={{ height: 50, width: 100 }}
+            onValueChange={itemValue =>
+              this.setState({
+                lagTime: {
+                  ...lagTime,
+                  seconds: +itemValue
+                }
+              })
+            }
+            prompt="Select Seconds"
+          >
+            {range(0, 60).map(secValue => (
+              <Picker.Item
+                label={`${secValue}`}
+                value={`${secValue}`}
+                key={secValue}
+              />
+            ))}
+          </Picker>
+        </View>
         <TouchableOpacity
           onPress={this.createTaskGroup}
           activeOpacity={0.5}
@@ -162,6 +238,10 @@ const styles = StyleSheet.create({
   slider: {
     width: "70%",
     marginBottom: 25
+  },
+  picker: {
+    display: "flex",
+    flexDirection: "row"
   }
 });
 
