@@ -17,10 +17,10 @@ class Dashboard extends Component {
   componentWillReceiveProps(nextProps) {
     if (
       this.props.length === nextProps.length &&
-      nextProps.taskList[0].taskStarted
+      nextProps.taskList['Sleep'].taskStarted
     ) {
       const timeInMilliSeconds = this.convertToMilliSeconds(
-        nextProps.taskList[0].lagTime
+        nextProps.taskList['Sleep'].lagTime
       );
       // this.circularProgress.animate(100, timeInMilliSeconds);
       this.circularProgress.animate(100, 30000);
@@ -30,21 +30,21 @@ class Dashboard extends Component {
   }
 
   showNameAndPercentage = (taskList, fill) => {
-    const { repeatFrequency, taskCompletedCount, taskCompleted } = taskList[0];
+    const { repeatFrequency, taskCompletedCount, taskCompleted } = taskList['Sleep'];
 
     if (fill === 100 && taskCompletedCount < repeatFrequency - 1) {
       this.circularProgress.reAnimate(0, 100, 30000);
-      this.props.updateTaskCompletedCount();
+      this.props.updateTaskCompletedCount('Sleep');
     }
 
     if (taskCompletedCount === repeatFrequency - 2 && fill === 100) {
-      this.props.taskCompleted();
+      this.props.taskCompleted('Sleep');
     }
 
     return taskCompletedCount < repeatFrequency &&
       !(taskCompleted && fill > 99.95) ? (
       <View>
-        <Text style={styles.points}>{taskList[0].taskName}</Text>
+        <Text style={styles.points}>{taskList['Sleep'].taskName}</Text>
         <Text style={styles.points}>{Math.round(fill)}%</Text>
         <Text style={styles.taskCount}>
           Task ran {taskCompletedCount}{" "}
@@ -76,7 +76,7 @@ class Dashboard extends Component {
           ref={ref => (this.circularProgress = ref)}
         >
           {fill =>
-            !isEmpty(taskList) && taskList[0].taskStarted
+            !isEmpty(taskList) && taskList['Sleep'].taskStarted
               ? this.showNameAndPercentage(taskList, fill)
               : null
           }
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
 });
 
 const mapStateToProps = state => {
-  const taskList = pathOr([], ["tasks", "taskList"], state);
+  const taskList = pathOr({}, ["tasks", "taskList"], state);
   return {
     taskList
   };
@@ -138,8 +138,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    updateTaskCompletedCount: () => dispatch(updateCompletedCount()),
-    taskCompleted: () => dispatch(updateTaskCompletedStatus())
+    updateTaskCompletedCount: (taskName) => dispatch(updateCompletedCount(taskName)),
+    taskCompleted: (taskName) => dispatch(updateTaskCompletedStatus(taskName))
   };
 };
 

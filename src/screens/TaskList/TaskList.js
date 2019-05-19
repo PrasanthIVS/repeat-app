@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import Modal from 'react-native-modal'
 import { connect } from "react-redux";
-import { pathOr } from 'ramda'
+import { pathOr, isEmpty } from 'ramda'
 import { updateTaskStatus } from "../../store/actions/tasks";
 import EmptyBoxAnimation from './EmptyBoxAnimation'
 
@@ -18,9 +18,10 @@ class TaskList extends Component {
     showTaskDetails: false,
   };
 
-  toggleSwitch = (index) => {
-    this.props.onToggleSwitch(index);
-    this.startTimer(this.props.taskList[index])
+  toggleSwitch = (taskName) => {
+    const { taskList, onToggleSwitch } = this.props
+    onToggleSwitch(taskList[taskName]);
+    this.startTimer(this.props.taskList[taskName])
   };
 
   // should be milliseconds
@@ -51,20 +52,22 @@ Running:   ${taskStarted ? 'Yes' : 'No'}`
   showAnimation = () => <EmptyBoxAnimation />
 
   render() {
+    const { taskList } = this.props
+    const taskListArray = Object.keys(taskList)
     return (
-      this.props.taskList.length > 0 ? 
+      !isEmpty(taskList) ? 
       (<View>
-        {this.props.taskList.map((listItem, index) => (
+        {taskListArray.map((taskName, index) => (
           <TouchableNativeFeedback
-            onPress={() => this.showTaskDetails(true, listItem)}
+            onPress={() => this.showTaskDetails(true, taskList[taskName])}
             key={index}
           >
             <View style={styles.container}>
-              <Text style={styles.taskItem}>{listItem.taskName}</Text>
+              <Text style={styles.taskItem}>{taskList[taskName].taskName}</Text>
               <Switch
                 style={styles.switch}
-                value={listItem.taskStarted}
-                onValueChange={() => this.toggleSwitch(index)}
+                value={taskList[taskName].taskStarted}
+                onValueChange={() => this.toggleSwitch(taskName)}
               />
             </View>
           </TouchableNativeFeedback>
@@ -95,13 +98,13 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => {
   return {
-    taskList: pathOr([], ['tasks', 'taskList'], state)
+    taskList: pathOr({}, ['tasks', 'taskList'], state)
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    onToggleSwitch: index => dispatch(updateTaskStatus(index))
+    onToggleSwitch: listItem => dispatch(updateTaskStatus(listItem))
   };
 };
 
