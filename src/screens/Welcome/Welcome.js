@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import { View, Text, StyleSheet, Button, TouchableOpacity } from "react-native";
 import startMainTabs from "../MainTabs/startMainTabs";
-import SplashScreen from 'react-native-splash-screen'
 
 class Welcome extends Component {
 

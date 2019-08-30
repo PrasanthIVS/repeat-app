@@ -7,7 +7,6 @@ import {
   TouchableNativeFeedback,
   Alert,
 } from "react-native";
-import Modal from 'react-native-modal'
 import { connect } from "react-redux";
 import { pathOr, isEmpty } from 'ramda'
 import { updateTaskStatus } from "../../store/actions/tasks";

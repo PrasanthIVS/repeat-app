@@ -10,7 +10,6 @@ import {
   Slider,
   Picker
 } from "react-native";
-import { TextField } from "react-native-material-textfield";
 import { isEmpty, isNil } from "ramda";
 import { connect } from "react-redux";
 import { saveTaskGroup } from "../../store/actions/tasks";
