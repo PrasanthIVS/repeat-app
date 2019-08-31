@@ -7,9 +7,9 @@ import {
   Button,
   Alert,
   TouchableOpacity,
-  Slider,
   Picker
 } from "react-native";
+import Slider from '@react-native-community/slider';
 import { isEmpty, isNil } from "ramda";
 import { connect } from "react-redux";
 import { saveTaskGroup } from "../../store/actions/tasks";
