@@ -10,7 +10,7 @@ import {
   Picker
 } from 'react-native'
 import Slider from '@react-native-community/slider'
-import { isEmpty, pathOr } from 'ramda'
+import { isEmpty, pathOr, dissoc } from 'ramda'
 import { connect } from 'react-redux'
 import { saveTaskGroup } from '../../store/actions/tasks'
 import { range } from 'ramda'
@@ -20,8 +20,9 @@ import FlashMessage from 'react-native-flash-message'
 class TaskGroup extends Component {
   constructor(props) {
     super(props)
+    const { taskList } = this.props
     this.state = {
-      taskName: '',
+      taskName: !isEmpty(taskList) ? taskList['sleep'].taskName : '',
       repeatFrequency: 0,
       lagTime: {
         hours: 0,
@@ -30,10 +31,12 @@ class TaskGroup extends Component {
       },
       taskRunning: false,
       taskCompletedCount: 0,
-      taskCompleted: false
+      taskCompleted: false,
+      editMode: false,
     }
     this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this))
   }
+
 
   onNavigatorEvent(event) {
     if (event.id === 'didDisappear') {
@@ -68,6 +71,7 @@ class TaskGroup extends Component {
       errorMessage = 'Lag time should not be empty'
     }
 
+    // TODO: can delete this as I'm disabling save button & showing error messages
     if (isEmpty(taskName) || repeatFrequency === 0 || this.isLagTimeEmpty()) {
       return displayMessage(errorMessage, 'danger', 'auto')
     } else {
@@ -86,8 +90,9 @@ class TaskGroup extends Component {
       displayMessage(message, 'success', 'auto')
       this.props.onCreateTaskGroup(this.state)
       // this.props.navigator.push({
-      //   screen: "repeatApp.TaskListScreen",
-      //   title: "Task List"
+      //   screen: "repeatApp.DashboardScreen",
+      //   title: "Dashboard",
+      //   backButtonHidden: true,
       // });
     }
   }
@@ -97,7 +102,16 @@ class TaskGroup extends Component {
     this.setState({ taskName: value })
   }
 
+  disableSaveButton = () => {
+    const { taskName, repeatFrequency, lagTime } = this.state
+    if (isEmpty(taskName) || repeatFrequency === 0 || this.isLagTimeEmpty())
+      return true
+    if (!isEmpty(this.props.taskList)) return true
+    return false
+  }
+
   render() {
+    console.log(this.props)
     const { repeatFrequency, lagTime, taskName } = this.state
     const { hours, minutes, seconds } = lagTime
     return (
@@ -194,11 +208,11 @@ class TaskGroup extends Component {
           // TODO: cleanup
           style={{
             ...styles.startButtonStyle,
-            backgroundColor: !isEmpty(this.props.taskList)
+            backgroundColor: this.disableSaveButton()
               ? '#C1C1C1'
               : styles.startButtonStyle.backgroundColor
           }}
-          disabled={!isEmpty(this.props.taskList)}
+          disabled={this.disableSaveButton()}
         >
           <Text style={styles.textStyle}>Save</Text>
         </TouchableOpacity>
@@ -250,7 +264,7 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => {
   return {
-    taskName: state.tasks.taskName,
+    taskName: state.tasks.taskName, // useless
     repeatFrequency: state.tasks.repeatFrequency,
     lagTime: state.tasks.lagTime,
     taskList: pathOr({}, ['tasks', 'taskList'], state)

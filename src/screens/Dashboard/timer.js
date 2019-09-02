@@ -4,13 +4,13 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import { Button } from 'react-native-elements'
 import { connect } from 'react-redux'
 import { pathOr, isEmpty } from 'ramda'
-import { updateTaskStatus, deleteTask } from '../../store/actions/tasks'
+import { updateTaskStatus, deleteTask, updateEditStatus } from '../../store/actions/tasks'
 
 let myFunc
 const showFinishMsg = false
 function startTime(time, setTime) {
   myFunc = setInterval(() => {
-    setTime(time = time-1000)
+    setTime(time = time - 1000)
   }, 1000)
 }
 
@@ -64,26 +64,45 @@ function timer(props) {
   const handleDelete = () => {
     clearInterval(myFunc)
     // TODO: locale
-    Alert.alert(
-      'Are you sure you want to delete the task?',
-      '',
-      [
-        {
-          text: 'No',
-          style: 'cancel',
-        },
-        {text: 'Yes', onPress: () => props.deleteTaskFromState(taskName)},
-      ],
-    );
+    Alert.alert('Are you sure you want to delete the task?', '', [
+      {
+        text: 'No',
+        style: 'cancel'
+      },
+      { text: 'Yes', onPress: () => props.deleteTaskFromState(taskName) }
+    ])
+  }
+
+  handleEdit = () => {
+    const passProps = {
+      taskName,
+      repeatFrequency: repeatFreq,
+      lagTime: {
+        hours: lagTime.hours,
+        minutes:lagTime.minutes,
+        seconds: lagTime.seconds
+      },
+      taskRunning,
+      taskCompletedCount: 0,
+      taskCompleted: false,
+      editMode: false,
+    }
+    props.navProps.push({
+      screen: 'repeatApp.TaskGroupScreen',
+      title: 'Edit task',
+      // passProps
+    })
+    props.toggleEditStatus(taskName,true)
   }
 
   const displayTime = () => {
     const roundedHrs = Math.floor(time / 3600000)
     const hours = `${roundedHrs}`.length === 1 ? `0${roundedHrs}` : roundedHrs
-    const roundedMins = Math.floor(time / 60000)-(roundedHrs*60)
+    const roundedMins = Math.floor(time / 60000) - (roundedHrs * 60)
     const minutes =
       `${roundedMins}`.length === 1 ? `0${roundedMins}` : roundedMins
-    const roundedSecs = Math.floor(time/1000)-(roundedHrs*3600)-(roundedMins*60)
+    const roundedSecs =
+      Math.floor(time / 1000) - (roundedHrs * 3600) - (roundedMins * 60)
     const seconds =
       `${roundedSecs}`.length === 1 ? `0${roundedSecs}` : roundedSecs
     return `${hours} : ${minutes} : ${seconds}`
@@ -186,17 +205,18 @@ function timer(props) {
           type="clear"
         />
       </View>
-      <Button
-          icon={
-            <Icon
-              name="md-trash"
-              size={30}
-              color={'#EE1628'}
-            />
-          }
+      <View style={styles.editDeleteButtonsView}>
+        <Button
+          icon={<Icon name="md-trash" size={30} color={'#EE1628'} />}
           onPress={handleDelete}
           type="clear"
         />
+        <Button
+          icon={<Icon name="md-create" size={30} color={'#3879D9'} />}
+          onPress={handleEdit}
+          type="clear"
+        />
+      </View>
     </View>
   )
 }
@@ -226,13 +246,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center'
     // width: '20%'
+  },
+  editDeleteButtonsView: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around'
   }
 })
 
 const mapDispatchToProps = dispatch => {
   return {
     onToggleSwitch: listItem => dispatch(updateTaskStatus(listItem)),
-    deleteTaskFromState: taskName => dispatch(deleteTask(taskName))
+    deleteTaskFromState: taskName => dispatch(deleteTask(taskName)),
+    toggleEditStatus: (taskName, isEditMode) => dispatch(updateEditStatus(taskName, isEditMode))
   }
 }
 

@@ -4,7 +4,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 const startTabs = () => {
   Promise.all([
     Icon.getImageSource("md-home", 30),
-    Icon.getImageSource("md-create", 30),
+    Icon.getImageSource("md-add-circle", 30),
     Icon.getImageSource("md-list", 30),
     Icon.getImageSource("md-settings", 30)
   ]).then(sources => {
@@ -36,7 +36,7 @@ const startTabs = () => {
         }
       ],
       appStyle: {
-        tabBarSelectedButtonColor: "#00802b",
+        tabBarSelectedButtonColor: "#3879D9",
         tabBarBackgroundColor: "#eee"
       }
     });

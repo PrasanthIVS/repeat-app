@@ -4,7 +4,8 @@ import {
   TASK_STATUS_UPDATE,
   TASK_COUNT_UPDATE,
   UPDATE_TASK_COMPLETE_STATUS,
-  DELETE_TASK
+  DELETE_TASK,
+  UPDATE_EDIT_STATUS,
 } from '../actions/actionTypes'
 
 const initialState = {
@@ -84,6 +85,19 @@ const reducer = (state = initialState, action) => {
       }
     }
 
+    case UPDATE_EDIT_STATUS: {
+      const { taskName, isEditMode } = action
+      return {
+        ...state,
+        taskList : {
+          ...state.taskList,
+          [taskName]: {
+            ...state.taskList[taskName],
+            editMode: isEditMode
+          }
+        }
+      }
+    }
     default:
       return state
   }

@@ -9,7 +9,6 @@ import {
   updateTaskCompletedStatus
 } from '../../store/actions/tasks'
 import Timer from './timer'
-import FlashMessage from 'react-native-flash-message'
 
 // TODO: setup webpack
 
@@ -19,11 +18,12 @@ const dashboard = props => {
   const changeBorderColor = (color) => updateBorderColor(color)
 
   const { taskList } = props
+  console.log(props)
   return (
     <View style={styles.container}>
       <View style={{ ...styles.innerView, borderColor }}>
         {isEmpty(taskList) ? null : (
-          <Timer taskList={taskList} changeBorderColor={changeBorderColor} />
+          <Timer taskList={taskList} changeBorderColor={changeBorderColor} navProps={props.navigator} />
         )}
       </View>
     </View>
