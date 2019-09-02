@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component } from 'react'
 import {
   Text,
   View,
@@ -8,97 +8,94 @@ import {
   Alert,
   TouchableOpacity,
   Picker
-} from "react-native";
-import Slider from '@react-native-community/slider';
-import { isEmpty, isNil } from "ramda";
-import { connect } from "react-redux";
-import { saveTaskGroup } from "../../store/actions/tasks";
-import FlashMessage, { showMessage } from "react-native-flash-message";
-import { range } from "ramda";
+} from 'react-native'
+import Slider from '@react-native-community/slider'
+import { isEmpty, pathOr } from 'ramda'
+import { connect } from 'react-redux'
+import { saveTaskGroup } from '../../store/actions/tasks'
+import { range } from 'ramda'
+import displayMessage from '../../components/flashMessage'
+import FlashMessage from 'react-native-flash-message'
 
 class TaskGroup extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
-      taskName: "",
+      taskName: '',
       repeatFrequency: 0,
       lagTime: {
         hours: 0,
         minutes: 0,
         seconds: 0
       },
-      taskStarted: false,
+      taskRunning: false,
       taskCompletedCount: 0,
       taskCompleted: false
-    };
-    this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this));
+    }
+    this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this))
   }
 
   onNavigatorEvent(event) {
-    if (event.id === "didDisappear") {
+    if (event.id === 'didDisappear') {
       this.setState({
-        taskName: "",
+        taskName: '',
         repeatFrequency: 0,
         lagTime: {
           hours: 0,
           minutes: 0,
           seconds: 0
         },
-        taskStarted: false
-      });
+        taskRunning: false
+      })
     }
   }
 
   isLagTimeEmpty = () => {
-    const { lagTime: { hours, minutes, seconds } } = this.state
+    const {
+      lagTime: { hours, minutes, seconds }
+    } = this.state
     return hours === 0 && minutes === 0 && seconds === 0
   }
 
   createTaskGroup = () => {
-    const { taskName, repeatFrequency, lagTime } = this.state;
-    var errorMessage;
+    const { taskName, repeatFrequency, lagTime } = this.state
+    var errorMessage
     if (isEmpty(taskName)) {
-      errorMessage = "Task name should not be empty";
+      errorMessage = 'Task name should not be empty'
     } else if (repeatFrequency === 0) {
-      errorMessage = "Task should set to repeat atleast once";
+      errorMessage = 'Task should set to repeat atleast once'
     } else {
-      errorMessage = "Lag time should not be empty";
+      errorMessage = 'Lag time should not be empty'
     }
 
     if (isEmpty(taskName) || repeatFrequency === 0 || this.isLagTimeEmpty()) {
-      showMessage({
-        message: errorMessage,
-        type: "danger",
-        icon: "auto"
-      });
+      return displayMessage(errorMessage, 'danger', 'auto')
     } else {
       const { hours, minutes, seconds } = lagTime
       this.setState({
-        taskName: "",
+        taskName: '',
         repeatFrequency: 0,
         lagTime: {
           hours: 0,
           minutes: 0,
           seconds: 0
         },
-        taskStarted: false
-      });
-      showMessage({
-        message: `Task Created for ${hours} hr ${minutes} min ${seconds} sec!`,
-        type: "success",
-        icon: "auto"
-      });
-      this.props.onCreateTaskGroup(this.state);
+        taskRunning: false
+      })
+      const message = `Task Created for ${hours} hr ${minutes} min ${seconds} sec!`
+      displayMessage(message, 'success', 'auto')
+      this.props.onCreateTaskGroup(this.state)
       // this.props.navigator.push({
       //   screen: "repeatApp.TaskListScreen",
       //   title: "Task List"
       // });
     }
-  };
+  }
 
+  // TODO: allow only alphabets
   onTaskNameChange = value => {
-    this.setState({ taskName: value });
-  };
+    this.setState({ taskName: value })
+  }
 
   render() {
     const { repeatFrequency, lagTime, taskName } = this.state
@@ -113,9 +110,9 @@ class TaskGroup extends Component {
           // autoFocus
           maxLength={30}
         />
-        <Text style={{ color: "black", marginTop: 25 }}>
-          Task will repeat {repeatFrequency}{" "}
-          {repeatFrequency === 1 ? "time" : "times"}
+        <Text style={{ color: 'black', marginTop: 25 }}>
+          Task will repeat {repeatFrequency}{' '}
+          {repeatFrequency === 1 ? 'time' : 'times'}
         </Text>
         <Slider
           maximumValue={100}
@@ -194,71 +191,100 @@ class TaskGroup extends Component {
         <TouchableOpacity
           onPress={this.createTaskGroup}
           activeOpacity={0.5}
-          style={styles.startButtonStyle}
+          // TODO: cleanup
+          style={{
+            ...styles.startButtonStyle,
+            backgroundColor: !isEmpty(this.props.taskList)
+              ? '#C1C1C1'
+              : styles.startButtonStyle.backgroundColor
+          }}
+          disabled={!isEmpty(this.props.taskList)}
         >
           <Text style={styles.textStyle}>Save</Text>
         </TouchableOpacity>
         <FlashMessage position="top" />
       </View>
-    );
+    )
   }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#F5FCFF"
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5FCFF'
   },
   textInput: {
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: 5
   },
   startButtonStyle: {
     paddingTop: 10,
     paddingBottom: 10,
-    backgroundColor: "#00802b",
+    backgroundColor: '#00802b',
     borderRadius: 10,
     borderWidth: 1,
-    width: "25%",
-    borderColor: "#fff"
+    width: '25%',
+    borderColor: '#fff'
     // marginTop: 25
   },
   textStyle: {
-    color: "#fff",
-    textAlign: "center",
-    fontWeight: "bold"
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: 'bold'
   },
   lagTimeText: {
-    color: "#989C9E",
+    color: '#989C9E',
     marginBottom: 25
   },
   slider: {
-    width: "70%",
+    width: '70%',
     marginBottom: 25
   },
   picker: {
-    display: "flex",
-    flexDirection: "row"
+    display: 'flex',
+    flexDirection: 'row'
   }
-});
+})
 
 const mapStateToProps = state => {
   return {
     taskName: state.tasks.taskName,
     repeatFrequency: state.tasks.repeatFrequency,
-    lagTime: state.tasks.lagTime
-  };
-};
+    lagTime: state.tasks.lagTime,
+    taskList: pathOr({}, ['tasks', 'taskList'], state)
+  }
+}
 
 const mapDispatchToProps = dispatch => {
   return {
-    onCreateTaskGroup: taskInfo => dispatch(saveTaskGroup(taskInfo))
-  };
-};
+    onCreateTaskGroup: taskInfo =>
+      dispatch(
+        saveTaskGroup({
+          ...taskInfo,
+          taskName: taskInfo.taskName.toLowerCase(),
+          lagTime: {
+            ...taskInfo.lagTime,
+            hours:
+              `${taskInfo.lagTime.hours}`.length === 2
+                ? `${taskInfo.lagTime.hours}`
+                : `0${taskInfo.lagTime.hours}`,
+            minutes:
+              `${taskInfo.lagTime.minutes}`.length === 2
+                ? `${taskInfo.lagTime.minutes}`
+                : `0${taskInfo.lagTime.minutes}`,
+            seconds:
+              `${taskInfo.lagTime.seconds}`.length === 2
+                ? `${taskInfo.lagTime.seconds}`
+                : `0${taskInfo.lagTime.seconds}`
+          }
+        })
+      )
+  }
+}
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(TaskGroup);
+)(TaskGroup)

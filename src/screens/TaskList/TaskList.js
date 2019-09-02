@@ -27,10 +27,10 @@ class TaskList extends Component {
   convertToSeconds = (lagTime) => +lagTime[0]*60*60 + +lagTime[1]*60
 
   startTimer = (currentSelectedItem) => {
-    console.log(!currentSelectedItem.taskStarted)
+    console.log(!currentSelectedItem.taskRunning)
     // console.log(this.convertToSeconds(currentSelectedItem.lagTime))
     // var myVar ;
-    // if (taskStarted) {
+    // if (taskRunning) {
     //   myVar = setInterval(() => console.log('repeat'), 1000))
     // } else {
     //   clearInterval(myVar)
@@ -38,12 +38,12 @@ class TaskList extends Component {
   }
 
   showTaskDetails = (show, listItem = {}) => {
-    const { lagTime, taskName, repeatFrequency, taskStarted } = listItem
+    const { lagTime, taskName, repeatFrequency, taskRunning } = listItem
     const { hours, minutes, seconds } = lagTime
     const taskInfo = `Name:   ${taskName}
 Frequency:   ${repeatFrequency}
 Lag Time:   ${hours} hr ${minutes} min ${seconds} sec
-Running:   ${taskStarted ? 'Yes' : 'No'}`
+Running:   ${taskRunning ? 'Yes' : 'No'}`
     this.setState({ showTaskDetails: show });
     Alert.alert('Task Info', taskInfo)
   };
@@ -65,7 +65,7 @@ Running:   ${taskStarted ? 'Yes' : 'No'}`
               <Text style={styles.taskItem}>{taskList[taskName].taskName}</Text>
               <Switch
                 style={styles.switch}
-                value={taskList[taskName].taskStarted}
+                value={taskList[taskName].taskRunning}
                 onValueChange={() => this.toggleSwitch(taskName)}
               />
             </View>

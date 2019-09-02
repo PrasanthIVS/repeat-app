@@ -1,32 +1,92 @@
 import React, { useState } from 'react'
-import { Text, View, StyleSheet } from 'react-native'
+import { Text, View, StyleSheet, Alert } from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons'
 import { Button } from 'react-native-elements'
-import { isNil } from 'ramda'
+import { connect } from 'react-redux'
+import { pathOr, isEmpty } from 'ramda'
+import { updateTaskStatus, deleteTask } from '../../store/actions/tasks'
 
 let myFunc
-
+const showFinishMsg = false
 function startTime(time, setTime) {
   myFunc = setInterval(() => {
-    setTime(time--)
+    setTime(time = time-1000)
   }, 1000)
+}
+
+const getCountdownTimeInMs = lagTime => {
+  const { hours, minutes, seconds } = lagTime
+  return +hours * 3600000 + +minutes * 60000 + +seconds * 1000
 }
 
 // TODO: disable buttons conditionally based on pause/running
 // TODO: clear styles
+// TODO: default values
+// TODO: edit functionality
 
 function timer(props) {
-  const countdownTime = props.countdownTime
-  const taskList = props.taskList
-  const taskName = props.taskList.Sleep.taskName
-  //   const repeatFreq = taskList.Sleep.repeatFreqency
+  const { taskList, onToggleSwitch, changeBorderColor } = props
+  const taskName = Object.keys(taskList)[0]
+  const lagTime = taskList[taskName].lagTime
+  const countdownTime = getCountdownTimeInMs(lagTime)
+  const repeatFreq = taskList[taskName].repeatFrequency
+  const taskRunning = taskList[taskName].taskRunning
+
   let [time, setTime] = useState(countdownTime)
   let [paused, pauseTimer] = useState(false)
   let [lap, setLap] = useState(1)
+  let [showFinishMsg, updateFinishMsgStatus] = useState(false)
 
-  const handleStartBtnTimer = () => {
-    if (time === countdownTime && !paused) return startTime(time - 1, setTime) // (time - 2) sets 13 on function call
-    if (time < countdownTime && paused) return startTime(time - 1, setTime)
+  const handleStart = () => {
+    updateFinishMsgStatus(false)
+    changeBorderColor('#3879D9')
+    pauseTimer(false)
+    !taskRunning && onToggleSwitch(taskList[taskName])
+    if (time === countdownTime && !paused) return startTime(time, setTime) // (time - 2) sets 13 on function call
+    if (time < countdownTime && paused) return startTime(time, setTime)
+  }
+
+  const handleClear = () => {
+    pauseTimer(false)
+    setLap(1)
+    setTime(countdownTime)
+    clearInterval(myFunc)
+    taskRunning && onToggleSwitch(taskList[taskName])
+  }
+
+  const handlePause = () => {
+    pauseTimer(true)
+    clearInterval(myFunc)
+  }
+
+  // TODO: task delete variable names
+
+  const handleDelete = () => {
+    clearInterval(myFunc)
+    // TODO: locale
+    Alert.alert(
+      'Are you sure you want to delete the task?',
+      '',
+      [
+        {
+          text: 'No',
+          style: 'cancel',
+        },
+        {text: 'Yes', onPress: () => props.deleteTaskFromState(taskName)},
+      ],
+    );
+  }
+
+  const displayTime = () => {
+    const roundedHrs = Math.floor(time / 3600000)
+    const hours = `${roundedHrs}`.length === 1 ? `0${roundedHrs}` : roundedHrs
+    const roundedMins = Math.floor(time / 60000)-(roundedHrs*60)
+    const minutes =
+      `${roundedMins}`.length === 1 ? `0${roundedMins}` : roundedMins
+    const roundedSecs = Math.floor(time/1000)-(roundedHrs*3600)-(roundedMins*60)
+    const seconds =
+      `${roundedSecs}`.length === 1 ? `0${roundedSecs}` : roundedSecs
+    return `${hours} : ${minutes} : ${seconds}`
   }
 
   const getStartButtonLabel = () => {
@@ -36,73 +96,68 @@ function timer(props) {
     return 'Start'
   }
 
-  const disableRunning = () => time < countdownTime && !paused
+  const disableRunning = () => taskRunning && !paused
 
-  const disableClear = () => time === countdownTime && !paused
+  const disableClear = () => !taskRunning
 
-  const disablePause = () =>
-    (time < countdownTime && paused) || time === countdownTime
+  const disablePause = () => paused || !taskRunning
 
   const resetAndClearRunningTimer = () => {
-    if (lap === props.taskList.Sleep.repeatFrequency) {
+    if (lap === repeatFreq) {
       setTime(countdownTime)
       setLap(1)
       clearInterval(myFunc)
-    } else if (lap <= props.taskList.Sleep.repeatFrequency) {
+      changeBorderColor('#6A9955')
+      return setTimeout(() => {
+        onToggleSwitch(taskList[taskName])
+        updateFinishMsgStatus(true)
+      }, 500)
+    } else if (lap <= repeatFreq) {
       setTime(countdownTime)
-      setLap(lap + 1)
+      repeatFreq !== lap && setLap(lap + 1)
+      repeatFreq - lap === 1 && changeBorderColor('#EE1628')
       clearInterval(myFunc)
-      startTime(countdownTime - 1, setTime)
+      return startTime(countdownTime, setTime)
     } else {
+      // showFinishMsg = true
       setTime(countdownTime)
-      clearInterval(myFunc)
+      return clearInterval(myFunc)
     }
   }
 
-  const showFinishMsg = false
-//   lap === props.taskList.Sleep.repeatFrequency && time === 1
-  
   return (
     <View>
-      <Text style={{ ...styles.points, fontSize: 25 }}>{`${taskName}`}</Text>
+      <Text
+        style={{ ...styles.points, fontSize: 25 }}
+      >{`${taskName[0].toUpperCase()}${taskName.slice(1)}`}</Text>
       <Text style={{ ...styles.points, fontSize: 25 }}>
-        {!showFinishMsg
-          ? `${lap} of ${props.taskList.Sleep.repeatFrequency}`
-          : 'Finished!'}
+        {!showFinishMsg ? `${lap} of ${repeatFreq}` : 'Finished!'}
       </Text>
       {time > 0 ? (
-        <Text style={styles.points}>{`00 : 00 : ${
-          `${time}`.length === 2 ? time : `0${time}`
-        }`}</Text>
+        <Text style={styles.points}>{displayTime()}</Text>
       ) : (
         resetAndClearRunningTimer()
       )}
-      {/* <Text style={{ ...styles.points, fontSize: 25 }}>
-        {paused
-          ? 'paused'
-          : (time < countdownTime ||
-              lap <= props.taskList.Sleep.repeatFrequency) &&
-            !paused
-          ? 'running'
+      <Text style={{ ...styles.points, fontSize: 25 }}>
+        {taskRunning && !paused
+          ? 'Running'
+          : taskRunning && paused
+          ? 'Paused'
           : null}
-      </Text> */}
+      </Text>
       <View style={styles.iconStyle}>
         <Button
           icon={
             <Icon
               name="md-play"
               size={30}
-              color={disableRunning() ? 'black' : 'green'}
+              color={disableRunning() ? '#C1C1C1' : '#3879D9'}
             />
           }
-          //   title={getLabel()}
           disabled={disableRunning()}
-          onPress={() => {
-            pauseTimer(false)
-            // sets 14 initially without waiting for 1 sec
-            // if (time === countdownTime) setTime(countdownTime - 1);
-            handleStartBtnTimer()
-          }}
+          onPress={handleStart}
+          // sets 14 initially without waiting for 1 sec
+          // if (time === countdownTime) setTime(countdownTime - 1);
           raised={true}
           type="clear"
         />
@@ -111,14 +166,10 @@ function timer(props) {
             <Icon
               name="md-refresh"
               size={30}
-              color={disableClear() ? 'black' : 'green'}
+              color={disableClear() ? '#C1C1C1' : '#3879D9'}
             />
           }
-          onPress={() => {
-            pauseTimer(false)
-            setTime(countdownTime)
-            clearInterval(myFunc)
-          }}
+          onPress={handleClear}
           disabled={disableClear()}
           type="clear"
         />
@@ -127,18 +178,25 @@ function timer(props) {
             <Icon
               name="md-pause"
               size={30}
-              color={disablePause() ? 'black' : 'green'}
+              color={disablePause() ? '#C1C1C1' : '#3879D9'}
             />
           }
-          onPress={() => {
-            pauseTimer(true)
-            clearInterval(myFunc)
-          }}
+          onPress={handlePause}
           disabled={disablePause()}
-          //   buttonStyle={styles.startButtonStyle}
           type="clear"
         />
       </View>
+      <Button
+          icon={
+            <Icon
+              name="md-trash"
+              size={30}
+              color={'#EE1628'}
+            />
+          }
+          onPress={handleDelete}
+          type="clear"
+        />
     </View>
   )
 }
@@ -168,15 +226,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center'
     // width: '20%'
-  },
-  startButtonStyle: {
-    backgroundColor: '#00802b',
-    borderRadius: 50,
-    // borderWidth: 1,
-    // width: "25%",
-    borderColor: '#fff'
-    // marginTop: 25
   }
 })
 
-export default timer
+const mapDispatchToProps = dispatch => {
+  return {
+    onToggleSwitch: listItem => dispatch(updateTaskStatus(listItem)),
+    deleteTaskFromState: taskName => dispatch(deleteTask(taskName))
+  }
+}
+
+export default connect(
+  () => ({}),
+  mapDispatchToProps
+)(timer)

@@ -1,21 +1,23 @@
+import { dissoc } from 'ramda'
 import {
   TASK_ADDED,
   TASK_STATUS_UPDATE,
   TASK_COUNT_UPDATE,
-  UPDATE_TASK_COMPLETE_STATUS
-} from "../actions/actionTypes";
+  UPDATE_TASK_COMPLETE_STATUS,
+  DELETE_TASK
+} from '../actions/actionTypes'
 
 const initialState = {
   taskList: {}
-};
+}
 
-  const updateTaskCompletionStatus = (taskList) =>
-  taskList.map((listItem) => {
-      return {
-        ...listItem,
-        taskCompleted: true
-      }
-  });
+const updateTaskCompletionStatus = taskList =>
+  taskList.map(listItem => {
+    return {
+      ...listItem,
+      taskCompleted: true
+    }
+  })
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
@@ -28,7 +30,7 @@ const reducer = (state = initialState, action) => {
           ...state.taskList,
           [taskName]: taskInfo
         }
-      };
+      }
     }
 
     case TASK_STATUS_UPDATE: {
@@ -40,14 +42,14 @@ const reducer = (state = initialState, action) => {
           ...state.taskList,
           [taskName]: {
             ...state.taskList[taskName],
-            taskStarted: !state.taskList[taskName].taskStarted
+            taskRunning: !state.taskList[taskName].taskRunning
           }
         }
-      };
+      }
     }
 
     case TASK_COUNT_UPDATE: {
-      const { taskName} = action
+      const { taskName } = action
       return {
         ...state,
         taskList: {
@@ -74,9 +76,17 @@ const reducer = (state = initialState, action) => {
       }
     }
 
-    default:
-      return state;
-  }
-};
+    case DELETE_TASK: {
+      const { taskName } = action
+      return {
+        ...state,
+        taskList: dissoc(taskName, state.taskList)
+      }
+    }
 
-export default reducer;
+    default:
+      return state
+  }
+}
+
+export default reducer

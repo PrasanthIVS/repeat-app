@@ -2,7 +2,8 @@ import {
   TASK_ADDED,
   TASK_STATUS_UPDATE,
   TASK_COUNT_UPDATE,
-  UPDATE_TASK_COMPLETE_STATUS
+  UPDATE_TASK_COMPLETE_STATUS,
+  DELETE_TASK,
 } from "./actionTypes";
 
 export const saveTaskGroup = taskInfo => ({
@@ -25,3 +26,7 @@ export const updateTaskCompletedStatus = (taskName) => ({
   taskName
 })
  
+export const deleteTask = taskName => ({
+  type: DELETE_TASK,
+  taskName
+})

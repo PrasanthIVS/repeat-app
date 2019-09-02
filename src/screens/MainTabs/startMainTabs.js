@@ -22,12 +22,12 @@ const startTabs = () => {
           title: "Create Task",
           icon: sources[1]
         },
-        {
-          screen: 'repeatApp.TaskListScreen',
-          label: "Task List",
-          title: "Task List",
-          icon: sources[2]
-        },
+        // {
+        //   screen: 'repeatApp.TaskListScreen',
+        //   label: "Task List",
+        //   title: "Task List",
+        //   icon: sources[2]
+        // },
         {
           screen: 'repeatApp.TaskListScreen',
           label: "Settings",
