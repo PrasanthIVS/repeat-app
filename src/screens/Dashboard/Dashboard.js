@@ -1,16 +1,15 @@
 import React, { useState } from 'react'
 import { ScrollView, View, Text, StyleSheet } from 'react-native'
-import { AnimatedCircularProgress } from 'react-native-circular-progress'
 import { connect } from 'react-redux'
-import renderIf from 'render-if'
 import { isEmpty, pathOr, isNil } from 'ramda'
 import {
   updateCompletedCount,
   updateTaskCompletedStatus
 } from '../../store/actions/tasks'
 import Timer from './timer'
+import { EmptyBoxAnimation } from '../TaskList/EmptyBoxAnimation';
 
-// TODO: setup webpack
+// TODO: setup webpack, remove react-native-circular-progress package
 
 const dashboard = props => {
   const [borderColor, updateBorderColor] = useState('#3879D9')
@@ -21,8 +20,8 @@ const dashboard = props => {
   console.log(props)
   return (
     <View style={styles.container}>
-      <View style={{ ...styles.innerView, borderColor }}>
-        {isEmpty(taskList) ? null : (
+      <View style={isEmpty(taskList) ? { ...styles.innerView, borderWidth: 0, height: '100%', width: '100%' } : { ...styles.innerView, borderColor }}>
+        {isEmpty(taskList) ? <EmptyBoxAnimation /> : (
           <Timer taskList={taskList} changeBorderColor={changeBorderColor} navProps={props.navigator} />
         )}
       </View>

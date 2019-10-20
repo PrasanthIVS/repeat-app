@@ -1,32 +1,34 @@
-import React, { Component } from "react";
+import React, { Component } from 'react'
 import {
   View,
   Text,
   StyleSheet,
   Switch,
   TouchableNativeFeedback,
-  Alert,
-} from "react-native";
-import { connect } from "react-redux";
+  Alert
+} from 'react-native'
+import { connect } from 'react-redux'
 import { pathOr, isEmpty } from 'ramda'
-import { updateTaskStatus } from "../../store/actions/tasks";
-import EmptyBoxAnimation from './EmptyBoxAnimation'
+import { updateTaskStatus } from '../../store/actions/tasks'
+import { EmptyBoxAnimation } from './EmptyBoxAnimation'
+
+// TODO: remove commented code and console logs
 
 class TaskList extends Component {
   state = {
-    showTaskDetails: false,
-  };
+    showTaskDetails: false
+  }
 
-  toggleSwitch = (taskName) => {
+  toggleSwitch = taskName => {
     const { taskList, onToggleSwitch } = this.props
-    onToggleSwitch(taskList[taskName]);
+    onToggleSwitch(taskList[taskName])
     this.startTimer(this.props.taskList[taskName])
-  };
+  }
 
   // should be milliseconds
-  convertToSeconds = (lagTime) => +lagTime[0]*60*60 + +lagTime[1]*60
+  convertToSeconds = lagTime => +lagTime[0] * 60 * 60 + +lagTime[1] * 60
 
-  startTimer = (currentSelectedItem) => {
+  startTimer = currentSelectedItem => {
     console.log(!currentSelectedItem.taskRunning)
     // console.log(this.convertToSeconds(currentSelectedItem.lagTime))
     // var myVar ;
@@ -44,18 +46,17 @@ class TaskList extends Component {
 Frequency:   ${repeatFrequency}
 Lag Time:   ${hours} hr ${minutes} min ${seconds} sec
 Running:   ${taskRunning ? 'Yes' : 'No'}`
-    this.setState({ showTaskDetails: show });
+    this.setState({ showTaskDetails: show })
     Alert.alert('Task Info', taskInfo)
-  };
+  }
 
   showAnimation = () => <EmptyBoxAnimation />
 
   render() {
     const { taskList } = this.props
     const taskListArray = Object.keys(taskList)
-    return (
-      !isEmpty(taskList) ? 
-      (<View>
+    return !isEmpty(taskList) ? (
+      <View>
         {taskListArray.map((taskName, index) => (
           <TouchableNativeFeedback
             onPress={() => this.showTaskDetails(true, taskList[taskName])}
@@ -71,21 +72,23 @@ Running:   ${taskRunning ? 'Yes' : 'No'}`
             </View>
           </TouchableNativeFeedback>
         ))}
-      </View>) : <EmptyBoxAnimation />
-    );
+      </View>
+    ) : (
+      <EmptyBoxAnimation />
+    )
   }
 }
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
+    width: '100%',
     padding: 10,
     marginLeft: 10,
     marginTop: 10,
-    backgroundColor: "#eee",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between"
+    backgroundColor: '#eee',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
   },
   taskItem: {
     marginLeft: 10
@@ -93,21 +96,21 @@ const styles = StyleSheet.create({
   switch: {
     marginRight: 10
   }
-});
+})
 
 const mapStateToProps = state => {
   return {
     taskList: pathOr({}, ['tasks', 'taskList'], state)
-  };
-};
+  }
+}
 
 const mapDispatchToProps = dispatch => {
   return {
     onToggleSwitch: listItem => dispatch(updateTaskStatus(listItem))
-  };
-};
+  }
+}
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(TaskList);
+)(TaskList)

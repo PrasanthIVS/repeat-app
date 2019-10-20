@@ -16,29 +16,42 @@ import { saveTaskGroup } from '../../store/actions/tasks'
 import { range } from 'ramda'
 import displayMessage from '../../components/flashMessage'
 import FlashMessage from 'react-native-flash-message'
+import {
+  NotePadAnimation,
+  CheckMarkAnimation
+} from '../TaskList/EmptyBoxAnimation'
+import { Input } from 'react-native-elements'
 
 class TaskGroup extends Component {
   constructor(props) {
     super(props)
-    const { taskList } = this.props
+    const { taskList, taskNameToBeEdited } = this.props
     this.state = {
-      taskName: !isEmpty(taskList) ? taskList['sleep'].taskName : '',
-      repeatFrequency: 0,
+      taskName: taskNameToBeEdited ? taskNameToBeEdited : '',
+      repeatFrequency: taskNameToBeEdited
+        ? taskList[taskNameToBeEdited].repeatFrequency
+        : 0,
       lagTime: {
-        hours: 0,
-        minutes: 0,
-        seconds: 0
+        hours: taskNameToBeEdited
+          ? +taskList[taskNameToBeEdited].lagTime.hours
+          : 0,
+        minutes: taskNameToBeEdited
+          ? +taskList[taskNameToBeEdited].lagTime.minutes
+          : 0,
+        seconds: taskNameToBeEdited
+          ? +taskList[taskNameToBeEdited].lagTime.seconds
+          : 0
       },
       taskRunning: false,
       taskCompletedCount: 0,
       taskCompleted: false,
-      editMode: false,
+      editMode: false
     }
     this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this))
   }
 
-
   onNavigatorEvent(event) {
+    console.log(event)
     if (event.id === 'didDisappear') {
       this.setState({
         taskName: '',
@@ -87,7 +100,8 @@ class TaskGroup extends Component {
         taskRunning: false
       })
       const message = `Task Created for ${hours} hr ${minutes} min ${seconds} sec!`
-      displayMessage(message, 'success', 'auto')
+      // TODO: remove the message as I'm showing check mark animation
+      // displayMessage(message, 'success', 'auto')
       this.props.onCreateTaskGroup(this.state)
       // this.props.navigator.push({
       //   screen: "repeatApp.DashboardScreen",
@@ -104,18 +118,34 @@ class TaskGroup extends Component {
 
   disableSaveButton = () => {
     const { taskName, repeatFrequency, lagTime } = this.state
+    // check whether something has changed
+    if (this.props.taskNameToBeEdited) {
+      return (
+        this.props.taskList[this.props.taskNameToBeEdited].taskName === taskName
+      )
+    }
     if (isEmpty(taskName) || repeatFrequency === 0 || this.isLagTimeEmpty())
       return true
     if (!isEmpty(this.props.taskList)) return true
     return false
   }
 
+  renderEveryThing = () => <View></View>
   render() {
-    console.log(this.props)
+    // console.log(this.props)
     const { repeatFrequency, lagTime, taskName } = this.state
     const { hours, minutes, seconds } = lagTime
     return (
       <View style={styles.container}>
+        {!isEmpty(this.props.taskList) ? (
+          <View style={{ height: '50%', width: '70%' }}>
+            <CheckMarkAnimation />
+          </View>
+        ) : (
+          <View style={{ height: '50%', width: '70%' }}>
+            <NotePadAnimation />
+          </View>
+        )}
         <TextInput
           placeholder="Task name"
           onChangeText={this.onTaskNameChange}
@@ -264,9 +294,9 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = state => {
   return {
-    taskName: state.tasks.taskName, // useless
-    repeatFrequency: state.tasks.repeatFrequency,
-    lagTime: state.tasks.lagTime,
+    // taskName: state.tasks.taskName, // useless
+    // repeatFrequency: state.tasks.repeatFrequency,
+    // lagTime: state.tasks.lagTime,
     taskList: pathOr({}, ['tasks', 'taskList'], state)
   }
 }
