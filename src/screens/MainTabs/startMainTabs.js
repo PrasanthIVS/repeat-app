@@ -1,13 +1,14 @@
 import { Navigation } from "react-native-navigation";
 import Icon from "react-native-vector-icons/Ionicons";
 
-const startTabs = () => {
+const startTabs = (args) => {
   Promise.all([
     Icon.getImageSource("md-home", 30),
     Icon.getImageSource("md-add-circle", 30),
     Icon.getImageSource("md-list", 30),
     Icon.getImageSource("md-settings", 30)
   ]).then(sources => {
+    console.log('args', args)
     Navigation.startTabBasedApp({
       tabs: [
         {

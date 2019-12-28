@@ -26,3 +26,11 @@ export const CheckMarkAnimation = () => (
     loop={false}
   />
 )
+
+export const SimpleSpinner = () => (
+  <LottieView
+    source={require('../../../animations/simple-spinner')}
+    autoPlay
+    loop
+  />
+)
