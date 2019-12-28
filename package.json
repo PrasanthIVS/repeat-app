@@ -9,6 +9,7 @@
   "dependencies": {
     "@react-native-community/slider": "1.0.4",
     "lottie-react-native": "^2.6.1",
+    "mongodb-stitch-react-native-sdk": "^4.6.0",
     "ramda": "^0.26.1",
     "react": "16.8.6",
     "react-native": "0.59.0",

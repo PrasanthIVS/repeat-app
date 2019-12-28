@@ -34,3 +34,5 @@ Navigation.startSingleScreenApp({
     title: 'Welcome'
   }
 })
+
+console.disableYellowBox = true

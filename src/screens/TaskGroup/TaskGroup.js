@@ -12,6 +12,7 @@ import {
 import Slider from '@react-native-community/slider'
 import { isEmpty, pathOr, dissoc } from 'ramda'
 import { connect } from 'react-redux'
+import { Stitch, RemoteMongoClient } from 'mongodb-stitch-react-native-sdk'
 import { saveTaskGroup } from '../../store/actions/tasks'
 import { range } from 'ramda'
 import displayMessage from '../../components/flashMessage'
@@ -21,6 +22,7 @@ import {
   CheckMarkAnimation
 } from '../TaskList/EmptyBoxAnimation'
 import { Input } from 'react-native-elements'
+import { formatTaskDetails } from '../../utils/timerUtils'
 
 class TaskGroup extends Component {
   constructor(props) {
@@ -51,7 +53,7 @@ class TaskGroup extends Component {
   }
 
   onNavigatorEvent(event) {
-    console.log(event)
+    // console.log(event)
     if (event.id === 'didDisappear') {
       this.setState({
         taskName: '',
@@ -100,9 +102,27 @@ class TaskGroup extends Component {
         taskRunning: false
       })
       const message = `Task Created for ${hours} hr ${minutes} min ${seconds} sec!`
+      const stitchAppClient = Stitch.defaultAppClient
+      const mongoClient = stitchAppClient.getServiceClient(
+        RemoteMongoClient.factory,
+        'mongodb-atlas-repeatAppRN'
+      )
+      const db = mongoClient.db('repeatApp')
+      const tasks = db.collection('tasks')
+      tasks
+        .insertOne({
+          email: 'prashanth.sai529@gmail.com',
+          ...formatTaskDetails(this.state)
+        })
+        .then(res => {
+          console.log('response', res)
+        })
+        .catch(err => {
+          console.error(err)
+        })
       // TODO: remove the message as I'm showing check mark animation
       // displayMessage(message, 'success', 'auto')
-      this.props.onCreateTaskGroup(this.state)
+      this.props.onCreateTaskGroup(formatTaskDetails(this.state))
       // this.props.navigator.push({
       //   screen: "repeatApp.DashboardScreen",
       //   title: "Dashboard",
@@ -304,27 +324,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     onCreateTaskGroup: taskInfo =>
-      dispatch(
-        saveTaskGroup({
-          ...taskInfo,
-          taskName: taskInfo.taskName.toLowerCase(),
-          lagTime: {
-            ...taskInfo.lagTime,
-            hours:
-              `${taskInfo.lagTime.hours}`.length === 2
-                ? `${taskInfo.lagTime.hours}`
-                : `0${taskInfo.lagTime.hours}`,
-            minutes:
-              `${taskInfo.lagTime.minutes}`.length === 2
-                ? `${taskInfo.lagTime.minutes}`
-                : `0${taskInfo.lagTime.minutes}`,
-            seconds:
-              `${taskInfo.lagTime.seconds}`.length === 2
-                ? `${taskInfo.lagTime.seconds}`
-                : `0${taskInfo.lagTime.seconds}`
-          }
-        })
-      )
+      dispatch(saveTaskGroup(taskInfo))
   }
 }
 
