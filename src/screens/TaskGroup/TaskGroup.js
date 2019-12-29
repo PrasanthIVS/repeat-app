@@ -47,7 +47,7 @@ class TaskGroup extends Component {
   }
 
   onNavigatorEvent(event) {
-    console.log(event)
+    // console.log(event)
     if (event.id === 'didDisappear') {
       this.setState({
         taskName: '',
@@ -66,7 +66,7 @@ class TaskGroup extends Component {
     const {
       lagTime: { hours, minutes, seconds }
     } = this.state
-    return [hours, minutes, seconds].some(key => key === 0)
+    return [hours, minutes, seconds].every(key => key === 0)
   }
 
   createTaskGroup = () => {
@@ -105,16 +105,18 @@ class TaskGroup extends Component {
     return isEmpty(taskName) || repeatFrequency === 0 || this.isLagTimeEmpty()
   }
 
-  handleTimeChange = (time, timerKey) =>
-    this.setState({
+  handleTimeChange = (time, timerKey) => {
+    console.log(time, timerKey)
+    return this.setState({
       lagTime: {
         ...this.state.lagTime,
         [timerKey]: time
       }
     })
+  }
 
   render() {
-    const { repeatFrequency, taskName } = this.state
+    const { repeatFrequency, taskName, lagTime } = this.state
     return (
       <View style={styles.container}>
         {!isEmpty(this.props.taskList) ? (
@@ -147,7 +149,10 @@ class TaskGroup extends Component {
           style={styles.slider}
         />
         <View style={styles.picker}>
-          <TimePicker handleTimeChange={this.handleTimeChange} />
+          <TimePicker
+            handleTimeChange={this.handleTimeChange}
+            lagTime={lagTime}
+          />
         </View>
 
         <TouchableOpacity

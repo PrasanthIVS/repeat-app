@@ -17,7 +17,7 @@ const dashboard = props => {
   const changeBorderColor = color => updateBorderColor(color)
 
   const { taskList } = props
-  console.log(props)
+  // console.log(props)
   return (
     <View style={styles.container}>
       <View

@@ -29,7 +29,7 @@ class TaskList extends Component {
   convertToSeconds = lagTime => +lagTime[0] * 60 * 60 + +lagTime[1] * 60
 
   startTimer = currentSelectedItem => {
-    console.log(!currentSelectedItem.taskRunning)
+    // console.log(!currentSelectedItem.taskRunning)
     // console.log(this.convertToSeconds(currentSelectedItem.lagTime))
     // var myVar ;
     // if (taskRunning) {
@@ -110,7 +110,4 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(TaskList)
+export default connect(mapStateToProps, mapDispatchToProps)(TaskList)

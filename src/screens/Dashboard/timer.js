@@ -8,6 +8,10 @@ import {
   deleteTask,
   updateEditStatus
 } from '../../store/actions/tasks'
+import timerStyles from './timer.style'
+import { getCountdownTimeInMs, displayTime } from '../../utils/timerUtils'
+
+// TODO remove console logs
 
 let myFunc
 const showFinishMsg = false
@@ -15,11 +19,6 @@ function startTime(time, setTime) {
   myFunc = setInterval(() => {
     setTime((time = time - 1000))
   }, 1000)
-}
-
-const getCountdownTimeInMs = lagTime => {
-  const { hours, minutes, seconds } = lagTime
-  return +hours * 3600000 + +minutes * 60000 + +seconds * 1000
 }
 
 // TODO: disable buttons conditionally based on pause/running
@@ -108,19 +107,6 @@ function Timer(props) {
     ])
   }
 
-  const displayTime = () => {
-    const roundedHrs = Math.floor(time / 3600000)
-    const hours = `${roundedHrs}`.length === 1 ? `0${roundedHrs}` : roundedHrs
-    const roundedMins = Math.floor(time / 60000) - roundedHrs * 60
-    const minutes =
-      `${roundedMins}`.length === 1 ? `0${roundedMins}` : roundedMins
-    const roundedSecs =
-      Math.floor(time / 1000) - roundedHrs * 3600 - roundedMins * 60
-    const seconds =
-      `${roundedSecs}`.length === 1 ? `0${roundedSecs}` : roundedSecs
-    return `${hours} : ${minutes} : ${seconds}`
-  }
-
   const getStartButtonLabel = () => {
     if (time === countdownTime && !paused) return 'Start'
     if (time < countdownTime && paused) return 'Resume'
@@ -157,6 +143,24 @@ function Timer(props) {
     }
   }
 
+  const customButton = (iconName, disable, onPressHandler, raised = false) => (
+    <Button
+      icon={
+        <Icon
+          name={iconName}
+          size={30}
+          color={disable ? '#C1C1C1' : '#3879D9'}
+        />
+      }
+      disabled={disable}
+      onPress={onPressHandler}
+      // sets 14 initially without waiting for 1 sec
+      // if (time === countdownTime) setTime(countdownTime - 1);
+      raised={raised}
+      type="clear"
+    />
+  )
+
   return (
     <View>
       <Text
@@ -166,7 +170,7 @@ function Timer(props) {
         {!showFinishMsg ? `${lap} of ${repeatFreq}` : 'Finished!'}
       </Text>
       {time > 0 ? (
-        <Text style={styles.points}>{displayTime()}</Text>
+        <Text style={styles.points}>{displayTime(time)}</Text>
       ) : (
         resetAndClearRunningTimer()
       )}
@@ -178,45 +182,9 @@ function Timer(props) {
           : null}
       </Text>
       <View style={styles.iconStyle}>
-        <Button
-          icon={
-            <Icon
-              name="md-play"
-              size={30}
-              color={disableRunning() ? '#C1C1C1' : '#3879D9'}
-            />
-          }
-          disabled={disableRunning()}
-          onPress={handleStart}
-          // sets 14 initially without waiting for 1 sec
-          // if (time === countdownTime) setTime(countdownTime - 1);
-          raised={true}
-          type="clear"
-        />
-        <Button
-          icon={
-            <Icon
-              name="md-refresh"
-              size={30}
-              color={disableClear() ? '#C1C1C1' : '#3879D9'}
-            />
-          }
-          onPress={handleClear}
-          disabled={disableClear()}
-          type="clear"
-        />
-        <Button
-          icon={
-            <Icon
-              name="md-pause"
-              size={30}
-              color={disablePause() ? '#C1C1C1' : '#3879D9'}
-            />
-          }
-          onPress={handlePause}
-          disabled={disablePause()}
-          type="clear"
-        />
+        {customButton('md-play', disableRunning(), handleStart, true)}
+        {customButton('md-refresh', disableClear(), handleClear)}
+        {customButton('md-pause', disablePause(), handlePause)}
       </View>
       <View style={styles.editDeleteButtonsView}>
         <Button
@@ -234,38 +202,7 @@ function Timer(props) {
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#3C3C3C',
-    flexDirection: 'column',
-    justifyContent: 'center'
-  },
-  points: {
-    textAlign: 'center',
-    color: '#7591af',
-    fontSize: 50,
-    fontWeight: '100'
-  },
-  taskCount: {
-    textAlign: 'center',
-    color: '#7591af',
-    fontSize: 20,
-    fontWeight: '100'
-  },
-  iconStyle: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center'
-    // width: '20%'
-  },
-  editDeleteButtonsView: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around'
-  }
-})
+const styles = StyleSheet.create(timerStyles)
 
 const mapDispatchToProps = dispatch => {
   return {

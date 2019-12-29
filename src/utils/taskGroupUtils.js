@@ -1,6 +1,5 @@
-export const formatLagTime = taskInfo => ({
-  ...taskInfo.lagTime,
-  ...['hours', 'minutes', 'seconds'].reduce((key, obj) => {
+export const formatLagTime = taskInfo =>
+  ['hours', 'minutes', 'seconds'].reduce((obj, key) => {
     const formattedValue =
       `${taskInfo.lagTime[key]}`.length === 2
         ? `${taskInfo.lagTime[key]}`
@@ -8,4 +7,3 @@ export const formatLagTime = taskInfo => ({
     obj[key] = formattedValue
     return obj
   }, {})
-})
