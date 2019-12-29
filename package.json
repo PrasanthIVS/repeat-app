@@ -12,16 +12,14 @@
     "ramda": "^0.26.1",
     "react": "16.8.6",
     "react-native": "0.59.0",
-    "react-native-circular-progress": "^1.1.0",
     "react-native-elements": "^1.1.0",
     "react-native-navigation": "1",
     "react-native-svg": "^9.4.0",
     "react-native-vector-icons": "^6.4.2",
-    "react-native-wheel-scroll-picker": "0.2.4",
+    "react-native-wheel-datepicker": "^2.2.3",
     "react-redux": "^6.0.1",
     "redux": "^4.0.1",
-    "render-if": "^0.1.1",
-    "styled-components": "^4.4.1"
+    "render-if": "^0.1.1"
   },
   "devDependencies": {
     "babel-core": "7.0.0-bridge.0",

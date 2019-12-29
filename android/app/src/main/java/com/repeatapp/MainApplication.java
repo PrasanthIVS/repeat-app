@@ -3,6 +3,7 @@ package com.repeatapp;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.zyu.ReactNativeWheelPickerPackage;
 import com.reactnativecommunity.slider.ReactSliderPackage;
 import com.horcrux.svg.SvgPackage;
 import com.airbnb.android.react.lottie.LottiePackage;
@@ -30,7 +31,8 @@ public class MainApplication extends NavigationApplication {
 			new VectorIconsPackage(),
 			new SvgPackage(),
 			new LottiePackage(),
-			new ReactSliderPackage()
+			new ReactSliderPackage(),
+            new ReactNativeWheelPickerPackage()
 		);
 	}
 

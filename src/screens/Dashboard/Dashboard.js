@@ -9,7 +9,7 @@ import {
 import Timer from './Timer'
 import { EmptyBoxAnimation } from '../TaskList/EmptyBoxAnimation'
 
-// TODO: setup webpack, remove react-native-circular-progress package
+// TODO: setup webpack
 
 const dashboard = props => {
   const [borderColor, updateBorderColor] = useState('#3879D9')

@@ -27,7 +27,7 @@ class Welcome extends Component {
         <Text style={styles.hello}>Hello!</Text>
         <Text style={styles.welcome}>Let's start by creating a Task Group</Text>
         <Button
-          icon={<Icon name="md-add-circle" size={50} color="#00802b" />}
+          icon={<Icon name="md-add-circle" size={60} color="#00802b" />}
           onPress={this.onButtonPress}
           type="clear"
         />

@@ -1,31 +1,23 @@
 import React from 'react'
 import { range } from 'ramda'
-import ScrollPicker from 'react-native-wheel-scroll-picker'
+import { Picker } from 'react-native-wheel-datepicker'
 
 const timeRange = {
   hours: range(0, 24),
   minutes: range(0, 60),
-  seconds: range(0, 24)
+  seconds: range(0, 60)
 }
+
+const format = range =>
+  range.map(val => (`${val}`.length === 1 ? `0${val}` : `${val}`))
 
 const TimePicker = props =>
   Object.keys(timeRange).map((timerKey, index) => (
-    <ScrollPicker
+    <Picker
+      style={{ flex: 1, backgroundColor: 'transparent', height: 90 }}
       key={index}
-      dataSource={timeRange[timerKey]}
-      selectedIndex={0}
-      renderItem={(data, index, isSelected) => {
-        //
-      }}
-      onValueChange={(data, selectedIndex) =>
-        props.handleTimeChange(data, timerKey)
-      }
-      wrapperHeight={40}
-      wrapperWidth={20}
-      wrapperBackground={'#F5FCFF'}
-      itemHeight={40}
-      highlightBorderWidth={0}
-      activeItemColor={'#222121'}
+      pickerData={format(timeRange[timerKey])}
+      onValueChange={data => props.handleTimeChange(+data, timerKey)}
     />
   ))
 

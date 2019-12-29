@@ -18,30 +18,46 @@ import TimePicker from './TimePicker'
 import { formatLagTime } from '../../utils/taskGroupUtils'
 import taskGroupStyles from './taskGroup.style'
 
+// const initialState = {
+//   taskName: taskNameToBeEdited ? taskNameToBeEdited : '',
+//   repeatFrequency: taskNameToBeEdited
+//     ? taskList[taskNameToBeEdited].repeatFrequency
+//     : 0,
+//   lagTime: {
+//     hours: taskNameToBeEdited ? +taskList[taskNameToBeEdited].lagTime.hours : 0,
+//     minutes: taskNameToBeEdited
+//       ? +taskList[taskNameToBeEdited].lagTime.minutes
+//       : 0,
+//     seconds: taskNameToBeEdited
+//       ? +taskList[taskNameToBeEdited].lagTime.seconds
+//       : 0
+//   },
+//   taskRunning: false,
+//   taskCompletedCount: 0,
+//   taskCompleted: false,
+//   editMode: false
+// }
+
+const initialState = {
+  taskName: '',
+  repeatFrequency: 0,
+  lagTime: {
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  },
+  taskRunning: false,
+  taskCompletedCount: 0,
+  taskCompleted: false,
+  editMode: false
+}
 class TaskGroup extends Component {
   constructor(props) {
     super(props)
     const { taskList, taskNameToBeEdited } = this.props
     this.state = {
-      taskName: taskNameToBeEdited ? taskNameToBeEdited : '',
-      repeatFrequency: taskNameToBeEdited
-        ? taskList[taskNameToBeEdited].repeatFrequency
-        : 0,
-      lagTime: {
-        hours: taskNameToBeEdited
-          ? +taskList[taskNameToBeEdited].lagTime.hours
-          : 0,
-        minutes: taskNameToBeEdited
-          ? +taskList[taskNameToBeEdited].lagTime.minutes
-          : 0,
-        seconds: taskNameToBeEdited
-          ? +taskList[taskNameToBeEdited].lagTime.seconds
-          : 0
-      },
-      taskRunning: false,
-      taskCompletedCount: 0,
-      taskCompleted: false,
-      editMode: false
+      ...initialState,
+      showNotePadAnimation: true
     }
     this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this))
   }
@@ -70,17 +86,18 @@ class TaskGroup extends Component {
   }
 
   createTaskGroup = () => {
-    this.setState({
-      taskName: '',
-      repeatFrequency: 0,
-      lagTime: {
-        hours: 0,
-        minutes: 0,
-        seconds: 0
-      },
-      taskRunning: false
-    })
     this.props.onCreateTaskGroup(this.state)
+    this.setState({ ...initialState, showNotePadAnimation: false })
+    setTimeout(() => {
+      this.setState({ showNotePadAnimation: true })
+      this.props.navigator.switchToTab({
+        tabIndex: 1 // (optional) if missing, this screen's tab will become selected
+      })
+    }, 3000)
+    this.props.navigator.setTabBadge({
+      tabIndex: 1,
+      badge: 1
+    })
     // this.props.navigator.push({
     //   screen: "repeatApp.DashboardScreen",
     //   title: "Dashboard",
@@ -105,27 +122,30 @@ class TaskGroup extends Component {
     return isEmpty(taskName) || repeatFrequency === 0 || this.isLagTimeEmpty()
   }
 
-  handleTimeChange = (time, timerKey) => {
-    console.log(time, timerKey)
-    return this.setState({
+  handleTimeChange = (time, timerKey) =>
+    this.setState({
       lagTime: {
         ...this.state.lagTime,
         [timerKey]: time
       }
     })
-  }
 
   render() {
-    const { repeatFrequency, taskName, lagTime } = this.state
+    const {
+      repeatFrequency,
+      taskName,
+      lagTime,
+      showNotePadAnimation
+    } = this.state
     return (
       <View style={styles.container}>
-        {!isEmpty(this.props.taskList) ? (
-          <View style={{ height: '50%', width: '70%' }}>
-            <CheckMarkAnimation />
+        {showNotePadAnimation ? (
+          <View style={{ height: '40%', width: '70%' }}>
+            <NotePadAnimation />
           </View>
         ) : (
-          <View style={{ height: '50%', width: '70%' }}>
-            <NotePadAnimation />
+          <View style={{ height: '40%', width: '70%' }}>
+            <CheckMarkAnimation />
           </View>
         )}
         <TextInput
@@ -149,10 +169,7 @@ class TaskGroup extends Component {
           style={styles.slider}
         />
         <View style={styles.picker}>
-          <TimePicker
-            handleTimeChange={this.handleTimeChange}
-            lagTime={lagTime}
-          />
+          <TimePicker handleTimeChange={this.handleTimeChange} />
         </View>
 
         <TouchableOpacity
