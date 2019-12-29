@@ -6,23 +6,40 @@ import {
   updateCompletedCount,
   updateTaskCompletedStatus
 } from '../../store/actions/tasks'
-import Timer from './timer'
-import { EmptyBoxAnimation } from '../TaskList/EmptyBoxAnimation';
+import Timer from './Timer'
+import { EmptyBoxAnimation } from '../TaskList/EmptyBoxAnimation'
 
 // TODO: setup webpack, remove react-native-circular-progress package
 
 const dashboard = props => {
   const [borderColor, updateBorderColor] = useState('#3879D9')
 
-  const changeBorderColor = (color) => updateBorderColor(color)
+  const changeBorderColor = color => updateBorderColor(color)
 
   const { taskList } = props
   console.log(props)
   return (
     <View style={styles.container}>
-      <View style={isEmpty(taskList) ? { ...styles.innerView, borderWidth: 0, height: '100%', width: '100%' } : { ...styles.innerView, borderColor }}>
-        {isEmpty(taskList) ? <EmptyBoxAnimation /> : (
-          <Timer taskList={taskList} changeBorderColor={changeBorderColor} navProps={props.navigator} />
+      <View
+        style={
+          isEmpty(taskList)
+            ? {
+                ...styles.innerView,
+                borderWidth: 0,
+                height: '100%',
+                width: '100%'
+              }
+            : { ...styles.innerView, borderColor }
+        }
+      >
+        {isEmpty(taskList) ? (
+          <EmptyBoxAnimation />
+        ) : (
+          <Timer
+            taskList={taskList}
+            changeBorderColor={changeBorderColor}
+            navProps={props.navigator}
+          />
         )}
       </View>
     </View>
@@ -76,7 +93,4 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(dashboard)
+export default connect(mapStateToProps, mapDispatchToProps)(dashboard)

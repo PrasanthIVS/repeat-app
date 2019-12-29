@@ -1,9 +1,10 @@
-import React, { Component } from "react";
-import { View, Text, StyleSheet, Button, TouchableOpacity } from "react-native";
-import startMainTabs from "../MainTabs/startMainTabs";
+import React, { Component } from 'react'
+import { View, Text, StyleSheet } from 'react-native'
+import { Button } from 'react-native-elements'
+import Icon from 'react-native-vector-icons/Ionicons'
+import startMainTabs from '../MainTabs/startMainTabs'
 
 class Welcome extends Component {
-
   componentDidMount() {
     // TODO: uncomment to show splash screen
     // SplashScreen.show()
@@ -17,58 +18,41 @@ class Welcome extends Component {
     //   screen: "repeatApp.TaskGroupScreen",
     //   title: "Create Task Group"
     // })
-    startMainTabs();
-  };
+    startMainTabs()
+  }
 
   render() {
     return (
       <View style={styles.container}>
         <Text style={styles.hello}>Hello!</Text>
         <Text style={styles.welcome}>Let's start by creating a Task Group</Text>
-        <TouchableOpacity
+        <Button
+          icon={<Icon name="md-add-circle" size={50} color="#00802b" />}
           onPress={this.onButtonPress}
-          activeOpacity={0.5}
-          style={styles.startButtonStyle}
-        >
-          <Text style={styles.textStyle}>Create</Text>
-        </TouchableOpacity>
-        {/* <Button title="create" onPress={this.onButtonPress} color="#00802b" /> */}
+          type="clear"
+        />
       </View>
-    );
+    )
   }
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#F5FCFF"
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5FCFF'
   },
   welcome: {
     fontSize: 20,
-    textAlign: "center",
+    textAlign: 'center',
     margin: 10
   },
   hello: {
     fontSize: 30,
-    textAlign: "center",
-    margin: 10
-  },
-  startButtonStyle: {
-    paddingTop:10,
-    paddingBottom:10,
-    backgroundColor:'#00802b',
-    borderRadius:10,
-    borderWidth: 1,
-    width: '25%',
-    borderColor: '#fff',
-  },
-  textStyle: {
-    color: '#fff',
     textAlign: 'center',
-    fontWeight: 'bold'
+    margin: 10
   }
-});
+})
 
-export default Welcome;
+export default Welcome

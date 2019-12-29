@@ -26,7 +26,7 @@ const getCountdownTimeInMs = lagTime => {
 // TODO: clear styles
 // TODO: default values
 
-function timer(props) {
+function Timer(props) {
   const { taskList, onToggleSwitch, changeBorderColor } = props
   const taskName = Object.keys(taskList)[0]
   const lagTime = taskList[taskName].lagTime
@@ -276,7 +276,4 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-export default connect(
-  () => ({}),
-  mapDispatchToProps
-)(timer)
+export default connect(() => ({}), mapDispatchToProps)(Timer)
