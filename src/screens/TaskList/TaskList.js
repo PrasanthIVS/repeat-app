@@ -9,7 +9,7 @@ import {
 } from 'react-native'
 import { connect } from 'react-redux'
 import { pathOr, isEmpty } from 'ramda'
-import { updateTaskStatus } from '../../store/actions/tasks'
+import { updateTaskStatus } from 'src/store/actions/tasks'
 import { EmptyBoxAnimation } from './EmptyBoxAnimation'
 
 // TODO: remove commented code and console logs
@@ -74,8 +74,8 @@ Running:   ${taskRunning ? 'Yes' : 'No'}`
         ))}
       </View>
     ) : (
-      <EmptyBoxAnimation />
-    )
+        <EmptyBoxAnimation />
+      )
   }
 }
 

@@ -3,13 +3,14 @@ import { Text, View, StyleSheet, Alert } from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons'
 import { Button } from 'react-native-elements'
 import { connect } from 'react-redux'
+import { AnimatedCircularProgress } from 'react-native-circular-progress'
 import {
   updateTaskStatus,
   deleteTask,
   updateEditStatus
-} from '../../store/actions/tasks'
+} from 'src/store/actions/tasks'
 import timerStyles from './timer.style'
-import { getCountdownTimeInMs, displayTime } from '../../utils/timerUtils'
+import { getCountdownTimeInMs, displayTime } from 'src/utils/timerUtils'
 
 // TODO remove console logs
 
@@ -26,7 +27,14 @@ function startTime(time, setTime) {
 // TODO: default values
 
 function Timer(props) {
-  const { taskList, onToggleSwitch, changeBorderColor } = props
+  const {
+    taskList,
+    onToggleSwitch,
+    changeBorderColor,
+    navProps,
+    deleteTaskFromState,
+    toggleEditStatus
+  } = props
   const taskName = Object.keys(taskList)[0]
   const lagTime = taskList[taskName].lagTime
   const countdownTime = getCountdownTimeInMs(lagTime)
@@ -37,10 +45,12 @@ function Timer(props) {
   let [paused, pauseTimer] = useState(false)
   let [lap, setLap] = useState(1)
   let [showFinishMsg, updateFinishMsgStatus] = useState(false)
+  let [fill, setFill] = useState(0)
 
   const handleStart = () => {
+    setFill(100)
     updateFinishMsgStatus(false)
-    changeBorderColor('#3879D9')
+    // changeBorderColor('#3879D9')
     pauseTimer(false)
     !taskRunning && onToggleSwitch(taskList[taskName])
     if (time === countdownTime && !paused) return startTime(time, setTime) // (time - 2) sets 13 on function call
@@ -50,35 +60,43 @@ function Timer(props) {
   const handleClear = () => {
     pauseTimer(false)
     setLap(1)
-    setTime(countdownTime)
+    setFill(0)
+    setTime(500)
+    setTimeout(() => setTime(countdownTime), 500)
     clearInterval(myFunc)
     taskRunning && onToggleSwitch(taskList[taskName])
   }
 
-  const handlePause = () => {
+  const handlePause = fill => {
+    setFill(fill)
     pauseTimer(true)
     clearInterval(myFunc)
   }
 
   // TODO: task delete variable names
 
-  const handleDelete = () => {
+  const handleDelete = fill => {
     // TODO: locale
-    handlePause()
+    taskRunning && handlePause(fill)
     Alert.alert('Confirm delete?', 'Your progress will be lost', [
       {
         text: 'No',
         style: 'cancel',
         onPress: () => {
-          pauseTimer(false)
-          startTime(time, setTime)
+          // taskRunning && pauseTimer(false)
+          // taskRunning && startTime(time, setTime)
+          // TODO: bug here
         }
       },
       {
         text: 'Yes',
         onPress: () => {
           clearInterval(myFunc)
-          props.deleteTaskFromState(taskName)
+          deleteTaskFromState(taskName)
+          navProps.setTabBadge({
+            tabIndex: 1,
+            badge: Object.keys(taskList).length - 1
+          })
         }
       }
     ])
@@ -94,24 +112,17 @@ function Timer(props) {
       {
         text: 'Yes',
         onPress: () => {
-          props.navProps.push({
+          navProps.push({
             screen: 'repeatApp.TaskGroupScreen',
             title: 'Edit task',
             passProps: {
               taskNameToBeEdited: taskName
             }
           })
-          props.toggleEditStatus(taskName, true)
+          toggleEditStatus(taskName, true)
         }
       }
     ])
-  }
-
-  const getStartButtonLabel = () => {
-    if (time === countdownTime && !paused) return 'Start'
-    if (time < countdownTime && paused) return 'Resume'
-    if (time < countdownTime && !paused) return 'Running'
-    return 'Start'
   }
 
   const disableRunning = () => taskRunning && !paused
@@ -125,32 +136,35 @@ function Timer(props) {
       setTime(countdownTime)
       setLap(1)
       clearInterval(myFunc)
-      changeBorderColor('#6A9955')
-      return setTimeout(() => {
+      // changeBorderColor('#6A9955')
+      setTimeout(() => {
         onToggleSwitch(taskList[taskName])
         updateFinishMsgStatus(true)
       }, 500)
     } else if (lap <= repeatFreq) {
       setTime(countdownTime)
       repeatFreq !== lap && setLap(lap + 1)
-      repeatFreq - lap === 1 && changeBorderColor('#EE1628')
+      // repeatFreq - lap === 1 && changeBorderColor('#EE1628')
       clearInterval(myFunc)
-      return startTime(countdownTime, setTime)
+      startTime(countdownTime, setTime)
     } else {
+      setFill(100)
       // showFinishMsg = true
       setTime(countdownTime)
-      return clearInterval(myFunc)
+      clearInterval(myFunc)
     }
   }
 
-  const customButton = (iconName, disable, onPressHandler, raised = false) => (
+  const customButton = ({
+    iconName,
+    disable = false,
+    onPressHandler,
+    raised = false,
+    color = '#3879D9'
+  }) => (
     <Button
       icon={
-        <Icon
-          name={iconName}
-          size={30}
-          color={disable ? '#C1C1C1' : '#3879D9'}
-        />
+        <Icon name={iconName} size={30} color={disable ? '#C1C1C1' : color} />
       }
       disabled={disable}
       onPress={onPressHandler}
@@ -161,43 +175,76 @@ function Timer(props) {
     />
   )
 
+  const formattedTaskName = () =>
+    `${taskName[0].toUpperCase()}${taskName.slice(1)}`
+  const finishMsg = () =>
+    !showFinishMsg ? `${lap} of ${repeatFreq}` : 'Finished!'
+
   return (
     <View>
-      <Text
-        style={{ ...styles.points, fontSize: 25 }}
-      >{`${taskName[0].toUpperCase()}${taskName.slice(1)}`}</Text>
-      <Text style={{ ...styles.points, fontSize: 25 }}>
-        {!showFinishMsg ? `${lap} of ${repeatFreq}` : 'Finished!'}
-      </Text>
-      {time > 0 ? (
-        <Text style={styles.points}>{displayTime(time)}</Text>
-      ) : (
-        resetAndClearRunningTimer()
-      )}
-      <Text style={{ ...styles.points, fontSize: 25 }}>
-        {taskRunning && !paused
-          ? 'Running'
-          : taskRunning && paused
-          ? 'Paused'
-          : null}
-      </Text>
-      <View style={styles.iconStyle}>
-        {customButton('md-play', disableRunning(), handleStart, true)}
-        {customButton('md-refresh', disableClear(), handleClear)}
-        {customButton('md-pause', disablePause(), handlePause)}
-      </View>
-      <View style={styles.editDeleteButtonsView}>
-        <Button
-          icon={<Icon name="md-trash" size={30} color={'#EE1628'} />}
-          onPress={handleDelete}
-          type="clear"
-        />
-        <Button
-          icon={<Icon name="md-create" size={30} color={'#3879D9'} />}
-          onPress={handleEdit}
-          type="clear"
-        />
-      </View>
+      {/* TODO: errors out at the end of last iteration */}
+      <AnimatedCircularProgress
+        size={350}
+        width={30}
+        backgroundWidth={30}
+        fill={fill}
+        tintColor="#3879D9"
+        duration={time * repeatFreq}
+        backgroundColor="#383838"
+      >
+        {fill => (
+          <>
+            <Text style={{ ...styles.points, fontSize: 25 }}>
+              {formattedTaskName()}
+            </Text>
+            <Text style={{ ...styles.points, fontSize: 25 }}>
+              {finishMsg()}
+            </Text>
+            {time > 0 ? (
+              <Text style={styles.points}>{displayTime(time)}</Text>
+            ) : (
+              resetAndClearRunningTimer()
+            )}
+            <Text style={{ ...styles.points, fontSize: 25 }}>
+              {taskRunning && !paused
+                ? 'Running'
+                : taskRunning && paused
+                ? 'Paused'
+                : null}
+            </Text>
+            <View style={styles.iconStyle}>
+              {customButton({
+                iconName: 'md-play',
+                disable: disableRunning(),
+                onPressHandler: () => handleStart(fill),
+                raised: true
+              })}
+              {customButton({
+                iconName: 'md-refresh',
+                disable: disableClear(),
+                onPressHandler: () => handleClear(fill)
+              })}
+              {customButton({
+                iconName: 'md-pause',
+                disable: disablePause(),
+                onPressHandler: () => handlePause(fill)
+              })}
+            </View>
+            <View style={styles.editDeleteButtonsView}>
+              {customButton({
+                iconName: 'md-trash',
+                onPressHandler: () => handleDelete(fill),
+                color: '#EE1628'
+              })}
+              {/* <Button
+                icon={<Icon name="md-create" size={30} color={'#3879D9'} />}
+                onPress={handleEdit}
+                type="clear"
+              /> */}
+            </View>
+          </>
+        )}
+      </AnimatedCircularProgress>
     </View>
   )
 }
@@ -213,4 +260,4 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-export default connect(() => ({}), mapDispatchToProps)(Timer)
+export default connect(null, mapDispatchToProps)(Timer)

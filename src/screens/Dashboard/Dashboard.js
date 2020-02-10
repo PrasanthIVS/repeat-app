@@ -5,18 +5,14 @@ import { isEmpty, pathOr, isNil } from 'ramda'
 import {
   updateCompletedCount,
   updateTaskCompletedStatus
-} from '../../store/actions/tasks'
+} from 'src/store/actions/tasks'
 import Timer from './Timer'
-import { EmptyBoxAnimation } from '../TaskList/EmptyBoxAnimation'
+import { EmptyBoxAnimation } from 'src/screens/TaskList/EmptyBoxAnimation'
 
 // TODO: setup webpack
 
 const dashboard = props => {
-  const [borderColor, updateBorderColor] = useState('#3879D9')
-
-  const changeBorderColor = color => updateBorderColor(color)
-
-  const { taskList } = props
+  const { taskList, navigator } = props
   // console.log(props)
   return (
     <View style={styles.container}>
@@ -29,17 +25,13 @@ const dashboard = props => {
                 height: '100%',
                 width: '100%'
               }
-            : { ...styles.innerView, borderColor }
+            : { ...styles.innerView }
         }
       >
         {isEmpty(taskList) ? (
           <EmptyBoxAnimation />
         ) : (
-          <Timer
-            taskList={taskList}
-            changeBorderColor={changeBorderColor}
-            navProps={props.navigator}
-          />
+          <Timer taskList={taskList} navProps={navigator} />
         )}
       </View>
     </View>
@@ -67,14 +59,14 @@ const styles = StyleSheet.create({
     fontWeight: '100'
   },
   innerView: {
-    // backgroundColor: '#00802b',
-    borderRadius: 100,
-    borderWidth: 10,
-    width: 350,
-    height: 350,
-    borderColor: '#3879D9',
-    display: 'flex',
-    justifyContent: 'space-around'
+    // // backgroundColor: '#00802b',
+    // borderRadius: 100,
+    // borderWidth: 10,
+    // width: 350,
+    // height: 350,
+    // borderColor: '#3879D9',
+    // display: 'flex',
+    // justifyContent: 'space-around'
   }
 })
 

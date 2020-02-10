@@ -7,36 +7,18 @@ import {
   TouchableOpacity
 } from 'react-native'
 import Slider from '@react-native-community/slider'
-import { isEmpty, pathOr } from 'ramda'
+import { isEmpty, pathOr, omit } from 'ramda'
 import { connect } from 'react-redux'
-import { saveTaskGroup } from '../../store/actions/tasks'
+import { saveTaskGroup } from 'src/store/actions/tasks'
 import {
   NotePadAnimation,
   CheckMarkAnimation
-} from '../TaskList/EmptyBoxAnimation'
+} from 'src/screens/TaskList/EmptyBoxAnimation'
 import TimePicker from './TimePicker'
-import { formatLagTime } from '../../utils/taskGroupUtils'
+import { formatLagTime } from 'src/utils/taskGroupUtils'
 import taskGroupStyles from './taskGroup.style'
 
-// const initialState = {
-//   taskName: taskNameToBeEdited ? taskNameToBeEdited : '',
-//   repeatFrequency: taskNameToBeEdited
-//     ? taskList[taskNameToBeEdited].repeatFrequency
-//     : 0,
-//   lagTime: {
-//     hours: taskNameToBeEdited ? +taskList[taskNameToBeEdited].lagTime.hours : 0,
-//     minutes: taskNameToBeEdited
-//       ? +taskList[taskNameToBeEdited].lagTime.minutes
-//       : 0,
-//     seconds: taskNameToBeEdited
-//       ? +taskList[taskNameToBeEdited].lagTime.seconds
-//       : 0
-//   },
-//   taskRunning: false,
-//   taskCompletedCount: 0,
-//   taskCompleted: false,
-//   editMode: false
-// }
+// TODO: change the component to functional
 
 const initialState = {
   taskName: '',
@@ -49,32 +31,30 @@ const initialState = {
   taskRunning: false,
   taskCompletedCount: 0,
   taskCompleted: false,
-  editMode: false
+  editMode: false,
+  showNotePadAnimation: true
 }
 class TaskGroup extends Component {
   constructor(props) {
     super(props)
-    const { taskList, taskNameToBeEdited } = this.props
-    this.state = {
-      ...initialState,
-      showNotePadAnimation: true
-    }
-    this.props.navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this))
+    const { navigator } = this.props
+    this.state = initialState
+    navigator.setOnNavigatorEvent(this.onNavigatorEvent.bind(this))
   }
 
   onNavigatorEvent(event) {
-    // console.log(event)
     if (event.id === 'didDisappear') {
-      this.setState({
-        taskName: '',
-        repeatFrequency: 0,
-        lagTime: {
-          hours: 0,
-          minutes: 0,
-          seconds: 0
-        },
-        taskRunning: false
-      })
+      this.setState(
+        omit(
+          [
+            'taskCompletedCount',
+            'taskCompleted',
+            'editMode',
+            'showNotePadAnimation'
+          ],
+          initialState
+        )
+      )
     }
   }
 
@@ -86,23 +66,22 @@ class TaskGroup extends Component {
   }
 
   createTaskGroup = () => {
-    this.props.onCreateTaskGroup(this.state)
-    this.setState({ ...initialState, showNotePadAnimation: false })
+    const { onCreateTaskGroup, navigator, taskList } = this.props
+    onCreateTaskGroup(this.state)
+    this.setState({
+      ...initialState,
+      showNotePadAnimation: false
+    })
     setTimeout(() => {
       this.setState({ showNotePadAnimation: true })
-      this.props.navigator.switchToTab({
+      navigator.switchToTab({
         tabIndex: 1 // (optional) if missing, this screen's tab will become selected
       })
     }, 3000)
-    this.props.navigator.setTabBadge({
+    navigator.setTabBadge({
       tabIndex: 1,
-      badge: 1
+      badge: Object.keys(taskList).length + 1
     })
-    // this.props.navigator.push({
-    //   screen: "repeatApp.DashboardScreen",
-    //   title: "Dashboard",
-    //   backButtonHidden: true,
-    // });
   }
 
   // TODO: allow only alphabets
@@ -112,13 +91,12 @@ class TaskGroup extends Component {
 
   disableSaveButton = () => {
     const { taskName, repeatFrequency } = this.state
+    const { taskNameToBeEdited, taskList } = this.props
     // check whether something has changed
-    if (this.props.taskNameToBeEdited) {
-      return (
-        this.props.taskList[this.props.taskNameToBeEdited].taskName === taskName
-      )
+    if (taskNameToBeEdited) {
+      return taskList[taskNameToBeEdited].taskName === taskName
     }
-    if (!isEmpty(this.props.taskList)) return true
+    if (!isEmpty(taskList)) return true
     return isEmpty(taskName) || repeatFrequency === 0 || this.isLagTimeEmpty()
   }
 
@@ -193,26 +171,19 @@ class TaskGroup extends Component {
 
 const styles = StyleSheet.create(taskGroupStyles)
 
-const mapStateToProps = state => {
-  return {
-    // taskName: state.tasks.taskName, // useless
-    // repeatFrequency: state.tasks.repeatFrequency,
-    // lagTime: state.tasks.lagTime,
-    taskList: pathOr({}, ['tasks', 'taskList'], state)
-  }
-}
+const mapStateToProps = state => ({
+  taskList: pathOr({}, ['tasks', 'taskList'], state)
+})
 
-const mapDispatchToProps = dispatch => {
-  return {
-    onCreateTaskGroup: taskInfo =>
-      dispatch(
-        saveTaskGroup({
-          ...taskInfo,
-          taskName: taskInfo.taskName.toLowerCase(),
-          lagTime: formatLagTime(taskInfo)
-        })
-      )
-  }
-}
+const mapDispatchToProps = dispatch => ({
+  onCreateTaskGroup: taskInfo =>
+    dispatch(
+      saveTaskGroup({
+        ...taskInfo,
+        taskName: taskInfo.taskName.toLowerCase(),
+        lagTime: formatLagTime(taskInfo)
+      })
+    )
+})
 
 export default connect(mapStateToProps, mapDispatchToProps)(TaskGroup)

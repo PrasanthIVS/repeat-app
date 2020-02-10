@@ -1,10 +1,10 @@
 import { Navigation } from 'react-native-navigation'
 import { Provider } from 'react-redux'
-import WelcomeScreen from './src/screens/Welcome/Welcome'
-import TaskGroupScreen from './src/screens/TaskGroup/TaskGroup'
-import TaskListScreen from './src/screens/TaskList/TaskList'
-import DashboardScreen from './src/screens/Dashboard/Dashboard'
-import configureStore from './src/store/configureStore'
+import WelcomeScreen from 'src/screens/Welcome/Welcome'
+import TaskGroupScreen from 'src/screens/TaskGroup'
+import TaskListScreen from 'src/screens/TaskList'
+import DashboardScreen from 'src/screens/Dashboard'
+import configureStore from 'src/store/configureStore'
 
 const store = configureStore()
 
